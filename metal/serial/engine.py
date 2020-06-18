@@ -13,6 +13,12 @@ from .preprocessor import PreprocessedSource
 from .read_symbols import Symbol
 
 
+from math import log
+def bytes_needed(n: int ):
+    if n == 0:
+        return 1
+    return int(log(n, 256)) + 1
+
 class Hook:
     identifier: str
 
@@ -39,6 +45,7 @@ class DefaultExit(Hook):
     def running(self):
         return self.exit_code is None
 
+
 class Engine:
 
     init_location: Location
@@ -50,8 +57,8 @@ class Engine:
     def __init__(self, binary: str, addr2line: str, symbols: typing.List[Symbol],
                  preprocessed_source: PreprocessedSource,
                  input: typing.IO, output: typing.Optional[typing.IO] = None):
-
         self.input = input
+        self.output = output
         self.symbols = symbols
         self.preprocessed_source = preprocessed_source
 
@@ -96,11 +103,14 @@ class Engine:
             raise Exception('Could not determine base pointer, aborting')
 
         self.addr2line = Popen([addr2line, '--exe', binary], stdout=PIPE,stdin=PIPE, )
-
         self.init_location = self.find_location(self.read_location())
 
     def read_byte(self) -> bytes :
         return self.input.read(1)
+
+    def write_byte(self, param: bytes):
+        self.output.write(param[:1])
+        self.output.flush()
 
     def read_string(self) -> str:
         chars = bytearray()
@@ -110,13 +120,32 @@ class Engine:
                 return chars.decode()
             chars.extend(c)
 
+    def write_string(self, param: str) -> int:
+        self.output.write(param.encode() + b'\x00')
+        self.output.flush()
+        return self.read_int()
+
     def read_int(self) -> int:
         sz = self.input.read(1)
+        assert 0 < int.from_bytes(sz, self.endianness) < 16
         value = self.input.read(int.from_bytes(sz, self.endianness))
         return int.from_bytes(value, byteorder=self.endianness)
 
+    def write_int(self, param: int):
+        as_bytes = param.to_bytes(bytes_needed(param), self.endianness)
+        self.output.write(len(as_bytes).to_bytes(1, self.endianness))
+        self.output.write(as_bytes)
+        self.output.flush()
+
     def read_location(self) -> int:
         return self.read_int() - self.base_pointer
+
+    def write_memory(self, input: bytes) -> int:
+        self.write_int(len(input))
+        self.output.write(input)
+        self.output.flush()
+        return self.read_int()
+
 
     def read_memory(self) -> bytes:
         sz = self.read_int()
@@ -159,3 +188,6 @@ class Engine:
             hook.exit(exit_code_hook.exit_code)
 
         return exit_code_hook.exit_code
+
+
+

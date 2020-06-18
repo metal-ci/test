@@ -1,11 +1,11 @@
 import json
 import os
-from typing import List, Dict, Set
-
 import pcpp
-from pycparser.ply.lex import LexToken
 
-from metal_test.location import Location
+from typing import List, Dict, Set
+from pycparser.ply.lex import LexToken
+from .location import Location
+
 
 class MacroExpansion:
     def __init__(self, name: str, args: List[str], args_token: List[List[LexToken]]):
@@ -32,7 +32,6 @@ class Preprocessor(pcpp.Preprocessor):
             self.expanded_macros[line] = MacroExpansion(name=macro.name, args_token=args, args=[''.join(tk.value for tk in arg) for arg in args])
 
         return super().macro_expand_args(macro, args)
-
 
 
 class PreprocessedSource():
@@ -67,6 +66,3 @@ class PreprocessedSource():
     def add_macros(self, macros: List[str]):
         for macro in macros:
             self.macros.add(macro)
-
-
-

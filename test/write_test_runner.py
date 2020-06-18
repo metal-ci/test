@@ -2,8 +2,9 @@ import re
 import sys
 import argparse
 import pcpp
+
 from metal.serial import Engine, read_symbols
-from subprocess import PIPE, Popen, check_output
+from subprocess import PIPE, Popen
 from metal.serial.preprocessor import PreprocessedSource
 
 parser = argparse.ArgumentParser()
@@ -18,24 +19,39 @@ args = parser.parse_args()
 
 symbols = read_symbols(nm= args.nm, binary=args.binary)
 
-p = Popen(args.binary, stdin=PIPE, stdout=PIPE, close_fds=True)
+p = Popen(args.binary, stdin=PIPE, stdout=PIPE, stderr=sys.stdout.buffer, close_fds=True)
 
 preproc = PreprocessedSource()
-
 engine = Engine(binary=args.binary, input=p.stdout, output=p.stdin, symbols=symbols, addr2line=args.addr2line, preprocessed_source=preproc)
 
-assert engine.init_location.file.endswith('read.c')
-assert engine.init_location.line == 22
 
-assert engine.read_byte() == b'a'
-assert engine.read_int() == 42
-assert engine.read_string() == "test-string"
+assert engine.init_location.file.endswith('write.c')
+assert engine.init_location.line == 25
 
-main_ptr = engine.read_int() - engine.base_pointer
-assert [sym.address for sym in symbols if sym.name == 'main'][0] == main_ptr
+engine.write_byte(b'0')
+assert engine.read_byte() == b'9'
 
-assert int.from_bytes(engine.read_memory(), engine.endianness) == 42
-assert engine.read_int() == 1234
+engine.write_int(22)
+assert engine.read_int() == 44
 
-assert engine.run([]) == 42
+assert engine.write_string("str") == 3
+assert engine.read_string() == "tr"
+
+engine.write_int(11)
+assert engine.read_int() == 33
+
+assert engine.write_string("overflow") == 6
+assert engine.read_string() == "erfl"
+
+engine.write_int(4)
+assert engine.read_int() == 16
+
+assert engine.write_memory(b'\x00\x01\x02\x03\x04') == 4
+assert engine.read_memory() == b'\x03\x02\x01\x00'
+
+assert engine.write_memory(b'1234567890') == 4
+assert engine.read_memory() == b'1234'
+
+assert engine.run([]) == 123
+
 

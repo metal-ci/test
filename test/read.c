@@ -1,5 +1,5 @@
 /**
- * @file   core.c
+ * @file   read.c
  * @date   17.06.2020
  * @author Klemens D. Morgenstern
  *
@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 
-char metal_serial_read() { return fgetc(stdin);}
+char metal_serial_read() { return (char)fgetc(stdin);}
 void metal_serial_write(char c) { fputc(c, stdout);}
 
 int main(int argc, char ** args)
