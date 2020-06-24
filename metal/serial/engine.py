@@ -189,5 +189,22 @@ class Engine:
 
         return exit_code_hook.exit_code
 
+    def read_with_type(self):
+        type_ = self.read_byte()
+        if type_ == b'b':
+            return self.read_byte()
+        if type_ == b'i':
+            return self.read_int()
+        if type_ == b's':
+            return self.read_string()
+        if type_ == b'x':
+            return self.read_memory()
+        if type_ == b'p':
+            return self.read_int()
+        if type_ == b'l':
+            return self.read_location()
+
+        raise Exception('Unknown type "{}" sent'.format(type_))
+
 
 
