@@ -12,14 +12,16 @@ from .location import Location
 from .preprocessor import PreprocessedSource
 from .read_symbols import Symbol
 
-
 from math import log
+
+
 def bytes_needed(n: int ):
     if n == 0:
         return 1
     return int(log(n, 256)) + 1
 
-class Hook:
+
+class MacroHook:
     identifier: str
 
     def invoke(self, engine: 'Engine', args: typing.List[str], args_tokenized: typing.List[typing.List[LexToken]]):
@@ -29,7 +31,7 @@ class Hook:
         pass
 
 
-class DefaultExit(Hook):
+class DefaultExit(MacroHook):
     identifier = 'METAL_SERIAL_EXIT'
     exit_code: typing.Optional[int]
 
@@ -170,21 +172,21 @@ class Engine:
 
         return Location(mt[1], int(mt[2]))
 
-    def run(self, hooks: typing.List[Hook]) -> int:
-        duplicates = [hookname for hookname, count in collections.Counter([hook.identifier for hook in hooks]).items() if count > 1]
+    def run(self, macro_hooks: typing.List[MacroHook] = []) -> int:
+        duplicates = [hookname for hookname, count in collections.Counter([hook.identifier for hook in macro_hooks]).items() if count > 1]
         if len(duplicates) > 0:
             raise Exception('Duplicate Macro identifiers ' + ','.join(duplicates))
 
         exit_code_hook = DefaultExit()
-        hooks.append(exit_code_hook)
-        self.preprocessed_source.add_macros([hook.identifier for hook in hooks])
+        macro_hooks.append(exit_code_hook)
+        self.preprocessed_source.add_macros([hook.identifier for hook in macro_hooks])
 
         while exit_code_hook.running:
             next_location = self.find_location(self.read_location())
             mc = self.preprocessed_source.find_macro(next_location)
-            next((hook for hook in hooks if hook.identifier == mc.name)).invoke(self, mc.args, mc.args_tokenized)
+            next((hook for hook in macro_hooks if hook.identifier == mc.name)).invoke(self, mc.args, mc.args_tokenized)
 
-        for hook in hooks:
+        for hook in macro_hooks:
             hook.exit(exit_code_hook.exit_code)
 
         return exit_code_hook.exit_code

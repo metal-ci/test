@@ -26,7 +26,6 @@ int main(int argc, char ** args)
     char c = 0;
 
     METAL_SERIAL_READ_BYTE(c);
-
     METAL_SERIAL_WRITE_BYTE(c + 9);
 
     int i = 0;

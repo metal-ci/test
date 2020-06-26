@@ -14,6 +14,7 @@ parser.add_argument('-S', '--source-dir',  required=True, help='The root of the 
 parser.add_argument('-D', '--bin-dir',     required=True, help='The binary directory')
 parser.add_argument('-A', '--addr2line',   default='addr2line', help='The addr2line command for evaluating the binary')
 parser.add_argument('-N', '--nm',          default='nm', help='The nm command for evaluating the binary')
+parser.add_argument('-I', '--include',  nargs='+', help="Include folders")
 
 args = parser.parse_args()
 

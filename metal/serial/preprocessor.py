@@ -3,8 +3,21 @@ import os
 import pcpp
 
 from typing import List, Dict, Set
-from pycparser.ply.lex import LexToken
+from pycparser.ply import lex
 from .location import Location
+
+from pcpp.preprocessor import tokens as LexTokenTypes
+
+
+class LexToken(lex.LexToken):
+    value: str
+    lineno: int
+    type: str
+    lexpos: int
+
+
+def can_ignore(token: LexToken) -> bool:
+    return token.type in ['CPP_WS', 'CPP_COMMENT1', 'CPP_COMMENT2']
 
 
 class MacroExpansion:
@@ -13,16 +26,16 @@ class MacroExpansion:
         self.args = args
         self.args_tokenized = args_token
 
-
 class Preprocessor(pcpp.Preprocessor):
     expanded_macros : Dict[int, MacroExpansion]
 
     def __init__(self, macros: Set[str]):
         super().__init__()
+
         self.__macros = macros
         self.expanded_macros = {}
 
-    def macro_expand_args(self, macro: pcpp.preprocessor.Macro, args: List[List]):
+    def macro_expand_args(self, macro: pcpp.preprocessor.Macro, args: List[List[LexToken]]):
         if macro.name in self.__macros:
             line = self.linemacro
             # check if duplicate
@@ -35,6 +48,7 @@ class Preprocessor(pcpp.Preprocessor):
 
 
 class PreprocessedSource():
+    paths: List[str]
     expansions: Dict[str, Dict[int, MacroExpansion]]
     macros: Set[str]
 
@@ -58,6 +72,7 @@ class PreprocessedSource():
             proc.define(d)
         for p in self.paths:
             proc.add_path(p)
+
         proc.parse(open(filename).read(), filename)
         proc.write(open(os.devnull, 'w'))
 
