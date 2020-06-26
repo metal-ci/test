@@ -23,44 +23,29 @@ int main(int argc, char ** args)
     setvbuf(stdout, NULL, _IONBF, 0);
 
     METAL_SERIAL_INIT();
-    fprintf(stderr, "Target initialized\n");
     char c = 0;
 
     METAL_SERIAL_READ_BYTE(c);
-    fprintf(stderr, "Target read byte %c\n", c);
 
     METAL_SERIAL_WRITE_BYTE(c + 9);
-    fprintf(stderr, "Target wrote byte %c\n", c + 9);
 
     int i = 0;
     METAL_SERIAL_READ_INT(i);
-    fprintf(stderr, "Target read int %d\n", i);
     METAL_SERIAL_WRITE_INT(i * 2);
-    fprintf(stderr, "Target wrote int %d\n", i * 2);
 
     char buffer[7];
     METAL_SERIAL_READ_STR(buffer, 7);
-    fprintf(stderr, "Target read str '%s'\n", buffer);
-
     METAL_SERIAL_WRITE_STR(buffer + 1);
-    fprintf(stderr, "Target wrote str '%s'\n", buffer);
 
 
     METAL_SERIAL_READ_INT(i);
-    fprintf(stderr, "Target read int %d\n", i);
     METAL_SERIAL_WRITE_INT(i * 3);
-    fprintf(stderr, "Target wrote int %d\n", i * 3);
 
     METAL_SERIAL_READ_STR(buffer, 7);
-    fprintf(stderr, "Target read str '%s'\n", buffer);
-
     METAL_SERIAL_WRITE_STR(buffer + 2);
-    fprintf(stderr, "Target wrote str '%s'\n", buffer + 2);
 
     METAL_SERIAL_READ_INT(i);
-    fprintf(stderr, "Target read int %d\n", i);
     METAL_SERIAL_WRITE_INT(i * 4);
-    fprintf(stderr, "Target wrote int %d\n", i * 4);
 
 
     char memory[4];

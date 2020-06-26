@@ -37,21 +37,5 @@ assert [sym.address for sym in symbols if sym.name == 'main'][0] == main_ptr
 assert int.from_bytes(engine.read_memory(), engine.endianness) == 42
 assert engine.read_int() == 1234
 
-val = engine.read_with_type()
-assert type(val) == int
-assert val == 123
-
-val = engine.read_with_type()
-assert type(val) == bytes
-assert val == b'b'
-
-val = engine.read_with_type()
-assert type(val) == bytes
-assert val == b'\x12\x34'
-
-val = engine.read_with_type()
-assert type(val) == str
-assert val == "string-test"
-
 assert engine.run([]) == 42
 

@@ -1,13 +1,13 @@
 /**
- * @file   read.c
- * @date   17.06.2020
+ * @file   cio.c
+ * @date   26.06.2020
  * @author Klemens D. Morgenstern
  *
  */
 
 // !!! This test is line sensitive, do NOT change lines around.
 
-#include <metal/serial/cprint.h>
+#include <metal/serial/cio.h>
 #include <stdio.h>
 
 
@@ -22,6 +22,7 @@ int main(int argc, char ** args)
     METAL_SERIAL_INIT();
     int i = 42;
 
+    METAL_SERIAL_WRITE_INT(42);
     METAL_SERIAL_WRITE_BYTE('a');
     METAL_SERIAL_WRITE_INT(42);
     METAL_SERIAL_WRITE_STR("test-string");

@@ -29,11 +29,6 @@ int main(int argc, char ** args)
     METAL_SERIAL_WRITE_MEMORY(&i, sizeof(i));
     METAL_SERIAL_WRITE_INT(1234);
 
-    METAL_SERIAL_WRITE_WITH_TYPE_INT(123);
-    METAL_SERIAL_WRITE_WITH_TYPE_BYTE('b');
-    METAL_SERIAL_WRITE_WITH_TYPE_MEMORY("\x12\x34", 2);
-    METAL_SERIAL_WRITE_WITH_TYPE_STR("string-test");
-
     METAL_SERIAL_EXIT(42);
 
     return 0;
