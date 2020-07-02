@@ -6,10 +6,11 @@ import typing
 
 from subprocess import PIPE, Popen
 
-from pycparser.ply.lex import LexToken
-
+from .elfreader import Marker
+from .generate import SerialInfo
+from .hooks import MacroHook, DefaultExit, default_hooks
 from .location import Location
-from .preprocessor import PreprocessedSource
+from .preprocessor import MacroExpansion
 from .read_symbols import Symbol
 
 from math import log
@@ -21,48 +22,23 @@ def bytes_needed(n: int ):
     return int(log(n, 256)) + 1
 
 
-class MacroHook:
-    identifier: str
-
-    def invoke(self, engine: 'Engine', args: typing.List[str], args_tokenized: typing.List[typing.List[LexToken]]):
-        raise NotImplementedError
-
-    def exit(self, exit_code: int):
-        pass
-
-
-class DefaultExit(MacroHook):
-    identifier = 'METAL_SERIAL_EXIT'
-    exit_code: typing.Optional[int]
-
-    def invoke(self, engine: 'Engine', args: typing.List[str], args_tokenized: typing.List[typing.List[LexToken]]):
-        self.exit_code = engine.read_int()
-
-    def __init__(self):
-        super().__init__()
-
-        self.exit_code = None
-
-    @property
-    def running(self):
-        return self.exit_code is None
-
-
 class Engine:
 
-    init_location: Location
+    serial_info: SerialInfo
+    init_marker: Marker
     version_string = '__metal_serial_version_1'
 
     endianness: str
     base_pointer: int
 
-    def __init__(self, binary: str, addr2line: str, symbols: typing.List[Symbol],
-                 preprocessed_source: PreprocessedSource,
-                 input: typing.IO, output: typing.Optional[typing.IO] = None):
+    macro_hooks : typing.List[MacroHook]
+
+    def __init__(self, serial_info: SerialInfo, input: typing.IO, output: typing.Optional[typing.IO] = None,
+                 macro_hooks: typing.List[MacroHook] = default_hooks):
         self.input = input
         self.output = output
-        self.symbols = symbols
-        self.preprocessed_source = preprocessed_source
+        self.serial_info = serial_info
+        self.macro_hooks = macro_hooks
 
         # Initialize the connection
         target_version = self.read_string()
@@ -97,15 +73,12 @@ class Engine:
 
         metal_serial_write = self.read_int()
 
-        for sym in symbols:
-            if sym.name == 'metal_serial_write':
-                self.base_pointer = metal_serial_write - sym.address
+        self.base_pointer = metal_serial_write - serial_info.metal_serial_write.address
 
         if self.base_pointer is None:
             raise Exception('Could not determine base pointer, aborting')
 
-        self.addr2line = Popen([addr2line, '--exe', binary], stdout=PIPE,stdin=PIPE, )
-        self.init_location = self.find_location(self.read_location())
+        self.init_marker = self.find_marker(self.read_location())
 
     def read_byte(self) -> bytes :
         return self.input.read(1)
@@ -152,41 +125,38 @@ class Engine:
     def read_memory(self) -> bytes:
         sz = self.read_int()
         return self.input.read(sz)
-
+    
     def find_symbol(self, addr: int)-> str:
         for name, address in self.symbols:
             if address == addr:
                 return name
 
-    def find_location(self, addr: int) -> Location:
+    def find_marker(self, addr: int) -> Marker:
         msg = '0x{:x}\n'.format(addr).encode()
-        self.addr2line.stdin.write(msg)
-        self.addr2line.stdin.flush()
-        res = self.addr2line.stdout.readline().decode().strip()
-        if res == '??:0':
+
+        try:
+            return next(marker for marker in self.serial_info.markers if marker.address == addr)
+        except StopIteration:
             raise Exception("Can't determine location for 0x{:x}".format(addr))
 
-        mt = re.fullmatch('^((?:\w:)?[^:]+):(\d+)(?:\s+\(discriminator \d+\))?\s*$', res)
-        if not mt:
-            raise Exception("Error reading from addr2line {}".format(res))
+    def find_macro_expansion(self, marker: Marker) -> MacroExpansion:
+        try:
+            return next(expansion for expansion in self.serial_info.expansions if marker.file == expansion.file and marker.line == expansion.line)
+        except StopIteration:
+            raise Exception("{}({}) Can't find macro expansion.".format(marker.file, marker.line))
 
-        return Location(mt[1], int(mt[2]))
-
-    def run(self, macro_hooks: typing.List[MacroHook] = []) -> int:
-        duplicates = [hookname for hookname, count in collections.Counter([hook.identifier for hook in macro_hooks]).items() if count > 1]
-        if len(duplicates) > 0:
-            raise Exception('Duplicate Macro identifiers ' + ','.join(duplicates))
-
-        exit_code_hook = DefaultExit()
-        macro_hooks.append(exit_code_hook)
-        self.preprocessed_source.add_macros([hook.identifier for hook in macro_hooks])
+    def run(self) -> int:
+        hooks = [Hook() for Hook in self.macro_hooks]
+        exit_code_hook = next(hook for hook in hooks if isinstance(hook, DefaultExit))
 
         while exit_code_hook.running:
-            next_location = self.find_location(self.read_location())
-            mc = self.preprocessed_source.find_macro(next_location)
-            next((hook for hook in macro_hooks if hook.identifier == mc.name)).invoke(self, mc.args, mc.args_tokenized)
-
-        for hook in macro_hooks:
+            next_marker = self.find_marker(self.read_location())
+            macro_expansion = self.find_macro_expansion(next_marker)
+            try:
+                next((hook for hook in hooks if hook.identifier == macro_expansion.name)).invoke(self, macro_expansion)
+            except StopIteration:
+                raise Exception("Cannot find hook for macro '{}'".format(macro_expansion.name))
+        for hook in hooks:
             hook.exit(exit_code_hook.exit_code)
 
         return exit_code_hook.exit_code
@@ -207,5 +177,6 @@ class Engine:
             return self.read_location()
 
         raise Exception('Unknown type "{}" sent'.format(type_))
+
 
 

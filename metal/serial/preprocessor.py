@@ -2,18 +2,45 @@ import json
 import os
 import pcpp
 
-from typing import List, Dict, Set
-from pycparser.ply import lex
+from typing import List, Dict, Set, Tuple
+
+from .elfreader import Marker
+from .hooks import default_hooks
 from .location import Location
 
-from pcpp.preprocessor import tokens as LexTokenTypes
 
-
-class LexToken(lex.LexToken):
+class LexToken:
     value: str
     lineno: int
     type: str
     lexpos: int
+    source: str
+
+    def __init__(self, value: str, lineno: int, type: str, lexpos: int, source: str):
+        self.value = value
+        self.lineno = lineno
+        self.type = type
+        self.lexpos = lexpos
+        self.source = source
+
+    def to_dict(self):
+        return {
+            'value':  self.value,
+            'lineno': self.lineno,
+            'type' :  self.type,
+            'lexpos': self.lexpos,
+            'source': self.source
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            data['value'],
+            data['lineno'],
+            data['type'],
+            data['lexpos'],
+            data['source']
+        )
 
 
 def can_ignore(token: LexToken) -> bool:
@@ -21,63 +48,72 @@ def can_ignore(token: LexToken) -> bool:
 
 
 class MacroExpansion:
-    def __init__(self, name: str, args: List[str], args_token: List[List[LexToken]]):
+    def __init__(self, name: str, args: List[str], args_token: List[List[LexToken]], file: str, line: int):
         self.name = name
         self.args = args
-        self.args_tokenized = args_token
+        self.args_token = args_token
+        self.file = file
+        self.line = line
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'file': self.file,
+            'line': self.line,
+            'args': self.args,
+            'args_tokenized': [[tk.to_dict() for tk in l] for l in self.args_token]
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(
+            data['name'],
+            data['args'],
+            [[LexToken.from_dict(tk) for tk in l] for l in data['args_token']],
+            data['file'],
+            data['line'])
+
 
 class Preprocessor(pcpp.Preprocessor):
-    expanded_macros : Dict[int, MacroExpansion]
+    expanded_macros : List[MacroExpansion]
 
     def __init__(self, macros: Set[str]):
         super().__init__()
 
         self.__macros = macros
-        self.expanded_macros = {}
+        self.expanded_macros = []
 
     def macro_expand_args(self, macro: pcpp.preprocessor.Macro, args: List[List[LexToken]]):
         if macro.name in self.__macros:
             line = self.linemacro
-            # check if duplicate
-            if line in self.expanded_macros:
-                raise Exception('{}:{}: Two known macros defined.'.format(self.source, self.linemacro))
-
-            self.expanded_macros[line] = MacroExpansion(name=macro.name, args_token=args, args=[''.join(tk.value for tk in arg) for arg in args])
+            self.expanded_macros.append(
+                MacroExpansion(name=macro.name,
+                               args_token=[[LexToken(tk.value, tk.lineno, tk.type, tk.lexpos, tk.source) for tk in arg] for arg in args],
+                               args=[''.join(tk.value for tk in arg) for arg in args], file=self.source, line=line))
 
         return super().macro_expand_args(macro, args)
 
 
-class PreprocessedSource():
-    paths: List[str]
-    expansions: Dict[str, Dict[int, MacroExpansion]]
-    macros: Set[str]
+def preprocess_compile_unit(absolute_path: str,
+                            markers: List[Marker], defines: List[str] = [], paths: List[str] = [],
+                            macros: List[str] = [hook.identifier for hook in default_hooks]):
+    proc = Preprocessor(set(macros))
+    for m in macros:
+        proc.define(m + '(...)')
+    for d in defines:
+        proc.define(d)
+    for p in paths:
+        proc.add_path(p)
 
-    def __init__(self, preloaded: Dict[str, Dict[int, MacroExpansion]] = {}, defines: List[str] = [], paths: List[str] = []):
-        self.expansions = preloaded
-        self.macros = set()
-        self.defines = defines
-        self.paths = paths
+    proc.parse(open(absolute_path).read(), absolute_path)
+    proc.write(open(os.devnull, 'w'))
 
-    def find_macro(self, location: Location) -> MacroExpansion:
-        if location.file not in self.expansions:
-            self.__process_file(location.file)
+    for marker in markers:
+        exps = [expanded_macro for expanded_macro in proc.expanded_macros if expanded_macro.file == marker.file and expanded_macro.line == marker.line]
 
-        return self.expansions[location.file][location.line]
+        if len(exps) == 0:
+            raise Exception(" {}:({}) No registered macro found for code marker.".format(marker.file, marker.line))
+        elif len(exps) > 1:
+            raise Exception(" {}:({}) Multiple registered macro found for code marker.".format(marker.file, marker.line))
 
-    def __process_file(self, filename):
-        proc = Preprocessor(self.macros)
-        for m in self.macros:
-            proc.define(m + '(...)')
-        for d in self.defines:
-            proc.define(d)
-        for p in self.paths:
-            proc.add_path(p)
-
-        proc.parse(open(filename).read(), filename)
-        proc.write(open(os.devnull, 'w'))
-
-        self.expansions[filename] = proc.expanded_macros
-
-    def add_macros(self, macros: List[str]):
-        for macro in macros:
-            self.macros.add(macro)
+    return proc.expanded_macros

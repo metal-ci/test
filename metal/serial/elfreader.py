@@ -1,16 +1,9 @@
-import json
-import subprocess
 from os import path
 
 from typing import Optional, List, Tuple
 
-from elftools.dwarf.abbrevtable import AbbrevTable
-from elftools.dwarf.compileunit import CompileUnit
-from elftools.dwarf.die import DIE
-from elftools.dwarf.dwarfinfo import DWARFInfo, DebugSectionDescriptor
-from elftools.dwarf.lineprogram import LineProgramEntry, LineState, LineProgram
+from elftools.dwarf.lineprogram import LineProgramEntry,  LineProgram
 from elftools.elf.elffile import ELFFile
-from elftools.elf.relocation import RelocationSection
 from elftools.elf.sections import SymbolTableSection
 
 from itanium_demangler import parse as demangle
@@ -40,6 +33,22 @@ class Symbol:
     def __repr__(self):
         return self.__str__()
 
+    def to_dict(self):
+        return {
+            'name' : self.name,
+            'address' : self.address,
+            'symbol_type' : self.symbol_type,
+            'demangled_name': self.demangled_name
+        }
+
+    @classmethod
+    def from_dict(cls, param):
+        return cls(
+            param['name'],
+            param['address'],
+            param['symbol_type'],
+            param['demangled_name'])
+
 
 class Marker(Symbol):
     def __init__(self, name: str, address: int, symbol_type: str, file: str, line: int, column: int):
@@ -50,6 +59,27 @@ class Marker(Symbol):
 
     def __str__(self):
         return '{:016x}, {} at {}:{}:{}'.format(self.address, self.name, self.file, self.line, self.column)
+
+    def to_dict(self):
+        return {
+            'name' : self.name,
+            'address' : self.address,
+            'symbol_type' : self.symbol_type,
+            'file' : self.file,
+            'line' : self.line,
+            'column' : self.column
+        }
+
+    @classmethod
+    def from_dict(cls, param):
+        return cls(
+            param['name'],
+            param['address'],
+            param['symbol_type'],
+            param['file'],
+            param['line'],
+            param['column'])
+
 
 
 class CompileUnitInput:
@@ -78,7 +108,7 @@ class ELFReader:
             #Symbol table
             for section in elffile.iter_sections():
                 if isinstance(section, SymbolTableSection):
-                    self.symbols = [Symbol(sym.name, sym['st_value'], sym['st_value'], sym['st_info']['type']) for sym in section.iter_symbols()
+                    self.symbols = [Symbol(sym.name, sym['st_value'], sym['st_info']['type']) for sym in section.iter_symbols()
                                     if len(sym.name) > 0]
 
                     continue
@@ -113,11 +143,18 @@ class ELFReader:
                                if entry.state is not None and entry.state.address == msym.address)
                     (loc, linep) = nx
 
+                    abs_file_entry = file_entry_to_abs(linep['file_entry'][loc.state.file - 1], linep)
+
+                    # check if marker already exists -
+                    for existing_marker in self.markers:
+                        if loc.state.line == existing_marker.line and loc.state.column == existing_marker.column and existing_marker.file == abs_file_entry:
+                            raise Exception("Duplicate code markers found at {}({})".format(existing_marker.file, existing_marker.line))
+
                     self.markers.append(Marker(
                         msym.name,
                         msym.address,
                         msym.symbol_type,
-                        file_entry_to_abs(linep['file_entry'][loc.state.file - 1], linep),
+                        abs_file_entry,
                         loc.state.line,
                         loc.state.column
                     ))
@@ -125,7 +162,7 @@ class ELFReader:
                     raise Exception('Could not find code location for {} at 0x{:x} - this is most likely due to missing debug symbols.'.format(msym.name, msym.address))
 
     def get_markers(self):
-        return (sym for sym in self.symbols if sym.name.startswith('__metal_serial_'))
+        return self.markers
 
     def get_functions(self):
         return (sym for sym in self.symbols if sym.symbol_type == "STT_FUNC")

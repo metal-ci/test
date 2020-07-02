@@ -4,6 +4,9 @@ add_executable(read_test read.c)
 add_executable(write_test write.c)
 add_executable(cprint_test cio.c)
 
+get_target_property(LIBA_INCLUDES read_test INCLUDE_DIRECTORIES)
+message("Including ${LIBA_INCLUDES}, ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}, ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}")
+
 
 add_test(NAME read_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read_test_runner.py
         --binary=$<TARGET_FILE:read_test> --source-dir=${CMAKE_SOURCE_DIR}
