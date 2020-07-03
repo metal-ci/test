@@ -1,3 +1,10 @@
+/**
+ * @file   metal/macros.h
+ * @date   01.07.2020
+ * @author Klemens D. Morgenstern
+ *
+ */
+
 #ifndef METAL_MISCL_MACROS_H
 #define METAL_MISCL_MACROS_H
 
