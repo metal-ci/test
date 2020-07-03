@@ -48,13 +48,14 @@ int main(int argc, char ** args)
 
 
     char memory[4];
-    METAL_SERIAL_READ_MEMORY(memory, 4);
+    int read;
+    METAL_SERIAL_READ_MEMORY(memory, 4, read);
     char return_memory[4] = {memory[3], memory[2], memory[1], memory[0]};
 
     METAL_SERIAL_WRITE_MEMORY(return_memory, sizeof(return_memory));
 
 
-    METAL_SERIAL_READ_MEMORY(memory, 4);
+    METAL_SERIAL_READ_MEMORY(memory, 4, read);
     METAL_SERIAL_WRITE_MEMORY(memory, 4);
 
     METAL_SERIAL_EXIT(123);

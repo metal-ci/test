@@ -49,7 +49,7 @@ char metal_serial_read();
         unsigned int strlen = 0;                       \
         while((value)[strlen++] != '\0');              \
         unsigned int idx;                              \
-        for (idx = 0u; idx<strlen; idx++) \
+        for (idx = 0u; idx<strlen; idx++)              \
             metal_serial_write((value)[idx]);          \
     }                                                  \
 
@@ -84,11 +84,11 @@ char metal_serial_read();
         for (idx = 0u; idx < size; idx++)           \
         metal_serial_write(((char*)(pointer))[idx]); }
 
-#define METAL_SERIAL_READ_MEMORY(pointer, buffer_size)  \
+#define METAL_SERIAL_READ_MEMORY(pointer, buffer_size, read_size)  \
     { \
         unsigned int size = 0u;                             \
         METAL_SERIAL_READ_INT(size);                        \
-        unsigned int read_size = size;                      \
+        read_size = size;                                   \
         unsigned int idx;                                   \
         if (read_size > buffer_size)                        \
             read_size = buffer_size;                        \
