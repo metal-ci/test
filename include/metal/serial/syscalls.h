@@ -17,6 +17,4 @@
 //Use full I/O facilities
 #define METAL_SERIAL_SYSCALLS_MODE_FULL 2
 
-
-
 #endif //METAL_TEST_SERIAL_SYSCALLS_H

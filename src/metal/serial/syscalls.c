@@ -7,7 +7,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <metal/serial.h>
+#include <metal/serial/core.h>
 #include <metal/serial/syscalls.h>
 #include <errno.h>
 #include <fcntl.h>

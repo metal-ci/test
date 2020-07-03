@@ -1,8 +1,8 @@
 #ifndef METAL_SERIAL_CIO_H
 #define METAL_SERIAL_CIO_H
 
-#include <metal/serial.h>
-#include <metal/misc/macros.h>
+#include <metal/serial/core.h>
+#include <metal/macros.h>
 
 #define METAL_PRINTF_STEP(Invocation) METAL_SERIAL_WRITE_##Invocation
 

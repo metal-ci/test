@@ -7,7 +7,7 @@
 
 // !!! This test is line sensitive, do NOT change lines around.
 
-#include <metal/serial.h>
+#include <metal/serial/core.h>
 #include <stdio.h>
 
 
