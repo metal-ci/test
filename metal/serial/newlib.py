@@ -54,9 +54,9 @@ def stat_(engine: Engine):
 def isatty(engine: Engine):
     try:
         fd = engine.read_int()
-        isatty = os.isatty(fd)
+        isatty_ = os.isatty(fd)
         engine.write_int(0)
-        engine.write_int(isatty)
+        engine.write_int(isatty_)
     except OSError as e:
         engine.write_int(map_errno(e.errno, errno, Flags))
 
@@ -90,13 +90,12 @@ def unlink(engine: Engine):
         engine.write_int(map_errno(e.errno, errno, Flags))
 
 
-
 def lseek(engine: Engine):
     try:
         file = engine.read_int()
         ptr = engine.read_int()
-        dir = engine.read_int()
-        engine.write_int(os.lseek(file, ptr, dir))
+        dir_ = engine.read_int()
+        engine.write_int(os.lseek(file, ptr, dir_))
     except OSError as e:
         engine.write_int(-1)
         engine.write_int(map_errno(e.errno, errno, Flags))
@@ -114,7 +113,7 @@ def open_full(engine: Engine):
         engine.write_int(map_errno(e.errno, errno, Flags))
 
 
-unchecked_map : typing.Dict[int, int] = {}
+unchecked_map: typing.Dict[int, int] = {}
 
 
 def open_unchecked(engine: Engine):
@@ -153,7 +152,6 @@ def close_unchecked(engine: Engine):
         print("Error closing file {} : {}".format(target_fd, e), file=sys.stderr)
     except KeyError:
         pass
-
 
 
 def close_(engine: Engine, tp: str):
@@ -225,9 +223,9 @@ def read(engine: Engine, tp: str):
 
 func_map = {
     "fstat": fstat,
-    "stat" : stat_,
+    "stat": stat_,
     "isatty": isatty,
-    "link" : link,
+    "link": link,
     "symlink": symlink,
     "unlink": unlink,
     "lseek": lseek,
@@ -259,4 +257,3 @@ class Syscall(MacroHook):
 
 
 default_hooks.append(Syscall)
-
