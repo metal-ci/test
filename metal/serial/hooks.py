@@ -1,8 +1,5 @@
 import typing
 
-from pycparser.ply.lex import LexToken
-
-
 class MacroHook:
     identifier: str
 

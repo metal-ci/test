@@ -297,7 +297,7 @@ int _write(int file, char* ptr, int len)
 {
     if ((file == STDOUT_FILENO) || (file == STDERR_FILENO))
     {
-        METAL_SERIAL_SYSCALL(write, blocked);
+        METAL_SERIAL_SYSCALL(write, unchecked);
         METAL_SERIAL_WRITE_INT(fd);
         METAL_SERIAL_WRITE_MEMORY(ptr, len);
         return len;
@@ -345,15 +345,16 @@ int _read_impl(int file, char* ptr, int len)
 #if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
     METAL_SERIAL_SYSCALL(read, full);
     METAL_SERIAL_WRITE_INT(file);
-    int read_len = 0;
-    METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
-    if (read_len < 0)
+    METAL_SERIAL_WRITE_INT(len);
+    int err;
+    METAL_SERIAL_READ_INT(err);
+    if (err != 0)
     {
-        int err;
-        METAL_SERIAL_READ_INT(err);
         errno = err;
         return -1;
     }
+    int read_len = 0;
+    METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
     return read_len;
 #else
     errno = EBADF;
@@ -412,7 +413,7 @@ int _write(int file, char* ptr, int len)
 }
 
 
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL | 1
+#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
 
 //read buffer
 static int read_fd = -1;
@@ -432,15 +433,20 @@ int _read_buffered_impl(int file, char* ptr, int len)
 {
     METAL_SERIAL_SYSCALL(read, buffered);
     METAL_SERIAL_WRITE_INT(file);
-    int read_len = 0;
-    METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
-    if (read_len < 0)
+    METAL_SERIAL_WRITE_INT(len);
+
+    int err;
+    METAL_SERIAL_READ_INT(err);
+
+    if (err != 0)
     {
-        int err;
-        METAL_SERIAL_READ_INT(err);
         errno = err;
         return -1;
     }
+
+    int read_len = 0;
+    METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
+
     return read_len;
 }
 

@@ -19,26 +19,26 @@ class FStat(Breakpoint):
         try:
             st = os.fstat(fd)
 
-            gdb.execute("set var st->st_dev   = {}", st.st_dev)
-            gdb.execute("set var st->st_ino   = {}", st.st_ino)
-            gdb.execute("set var st->st_mode  = {}", map_file_mode(st.st_mode, stat, Flags))
-            gdb.execute("set var st->st_nlink = {}", st.st_nlink)
-            gdb.execute("set var st->st_uid   = {}", st.st_uid)
-            gdb.execute("set var st->st_gid   = {}", st.st_gid)
-            gdb.execute("set var st->st_rdev  = {}", st.st_rdev)
-            gdb.execute("set var st->st_size  = {}", st.st_size)
+            gdb.execute("set var st->st_dev   = {}".format(st.st_dev))
+            gdb.execute("set var st->st_ino   = {}".format(st.st_ino))
+            gdb.execute("set var st->st_mode  = {}".format(map_file_mode(st.st_mode, stat, Flags)))
+            gdb.execute("set var st->st_nlink = {}".format(st.st_nlink))
+            gdb.execute("set var st->st_uid   = {}".format(st.st_uid))
+            gdb.execute("set var st->st_gid   = {}".format(st.st_gid))
+            gdb.execute("set var st->st_rdev  = {}".format(st.st_rdev))
+            gdb.execute("set var st->st_size  = {}".format(st.st_size))
 
-            gdb.execute("set var st->st_atime.tv_sec = {}", st.st_atime)
-            gdb.execute("set var st->st_mtime.tv_sec = {}", st.st_mtime)
-            gdb.execute("set var st->st_ctime.tv_sec = {}", st.st_ctime)
+            gdb.execute("set var st->st_atime.tv_sec = {}".format(int(st.st_atime)))
+            gdb.execute("set var st->st_mtime.tv_sec = {}".format(int(st.st_mtime)))
+            gdb.execute("set var st->st_ctime.tv_sec = {}".format(int(st.st_ctime)))
 
-            gdb.execute("set var st->st_atime.tv_nsec = {}", st.st_atime_ns % 1000000000)
-            gdb.execute("set var st->st_mtime.tv_nsec = {}", st.st_mtime_ns % 1000000000)
-            gdb.execute("set var st->st_ctime.tv_nsec = {}", st.st_ctime_ns % 1000000000)
+            gdb.execute("set var st->st_atime.tv_nsec = {}".format(st.st_atime_ns % 1000000000))
+            gdb.execute("set var st->st_mtime.tv_nsec = {}".format(st.st_mtime_ns % 1000000000))
+            gdb.execute("set var st->st_ctime.tv_nsec = {}".format(st.st_ctime_ns % 1000000000))
 
             gdb.execute("set var res = 0")
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 fstat = FStat()
@@ -54,26 +54,26 @@ class Stat(Breakpoint):
         try:
             st = os.stat(file)
 
-            gdb.execute("set var st->st_dev   = {}", st.st_dev)
-            gdb.execute("set var st->st_ino   = {}", st.st_ino)
-            gdb.execute("set var st->st_mode  = {}", map_file_mode(st.st_mode, stat, Flags))
-            gdb.execute("set var st->st_nlink = {}", st.st_nlink)
-            gdb.execute("set var st->st_uid   = {}", st.st_uid)
-            gdb.execute("set var st->st_gid   = {}", st.st_gid)
-            gdb.execute("set var st->st_rdev  = {}", st.st_rdev)
-            gdb.execute("set var st->st_size  = {}", st.st_size)
+            gdb.execute("set var st->st_dev   = {}".format(st.st_dev))
+            gdb.execute("set var st->st_ino   = {}".format(st.st_ino))
+            gdb.execute("set var st->st_mode  = {}".format(map_file_mode(st.st_mode, stat, Flags)))
+            gdb.execute("set var st->st_nlink = {}".format(st.st_nlink))
+            gdb.execute("set var st->st_uid   = {}".format(st.st_uid))
+            gdb.execute("set var st->st_gid   = {}".format(st.st_gid))
+            gdb.execute("set var st->st_rdev  = {}".format(st.st_rdev))
+            gdb.execute("set var st->st_size  = {}".format(st.st_size))
 
-            gdb.execute("set var st->st_atime.tv_sec = {}", st.st_atime)
-            gdb.execute("set var st->st_mtime.tv_sec = {}", st.st_mtime)
-            gdb.execute("set var st->st_ctime.tv_sec = {}", st.st_ctime)
+            gdb.execute("set var st->st_atime.tv_sec = {}".format(int(st.st_atime)))
+            gdb.execute("set var st->st_mtime.tv_sec = {}".format(int(st.st_mtime)))
+            gdb.execute("set var st->st_ctime.tv_sec = {}".format(int(st.st_ctime)))
 
-            gdb.execute("set var st->st_atime.tv_nsec = {}", st.st_atime_ns % 1000000000)
-            gdb.execute("set var st->st_mtime.tv_nsec = {}", st.st_mtime_ns % 1000000000)
-            gdb.execute("set var st->st_ctime.tv_nsec = {}", st.st_ctime_ns % 1000000000)
+            gdb.execute("set var st->st_atime.tv_nsec = {}".format(st.st_atime_ns % 1000000000))
+            gdb.execute("set var st->st_mtime.tv_nsec = {}".format(st.st_mtime_ns % 1000000000))
+            gdb.execute("set var st->st_ctime.tv_nsec = {}".format(st.st_ctime_ns % 1000000000))
 
             gdb.execute("set var res = 0")
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 stat_ = Stat()
@@ -89,7 +89,7 @@ class IsAtty(Breakpoint):
         try:
             gdb.execute("set var res = {}".format(os.isatty(fd)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 isAtty = IsAtty()
@@ -106,7 +106,7 @@ class Link(Breakpoint):
             os.link(existing, new_)
             gdb.execute("set var res = 0")
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 link = Link()
@@ -123,7 +123,7 @@ class Symlink(Breakpoint):
             os.symlink(existing, new_)
             gdb.execute("set var res = 0")
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 symlink = Symlink()
@@ -139,7 +139,7 @@ class Unlink(Breakpoint):
         try:
             gdb.execute("set var res = {}".format(os.unlink(name)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 unlink = Unlink()
@@ -159,7 +159,7 @@ class Open(Breakpoint):
         try:
             gdb.execute("set var res = {}".format(os.open(file, flags, mode)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 open_ = Open()
@@ -171,12 +171,12 @@ class LSeek(Breakpoint):
 
     def stop(self, bp):
         fr = gdb.selected_frame()
-        file, ptr, dir = (arg.value() for arg in fr.block() if arg.is_argument)
+        file, ptr, dir_ = (arg.value() for arg in fr.block() if arg.is_argument)
 
         try:
-            gdb.execute("set var res = {}".format(os.lseek(file, ptr, dir)))
+            gdb.execute("set var res = {}".format(os.lseek(file, ptr, dir_)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 lseek = LSeek()
@@ -184,17 +184,17 @@ lseek = LSeek()
 
 class Write(Breakpoint):
     def __init__(self):
-        Breakpoint.__init__(self, "syscall.read")
+        Breakpoint.__init__(self, "syscall.write")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         file, ptr, len_ = (arg.value() for arg in fr.block() if arg.is_argument)
 
         try:
-            buf = gdb.selected_inferior().read_memory(ptr, ptr, len_)
-            gdb.execute("set var res = {}".format(os.write(file, buf)))
+            buf = gdb.selected_inferior().read_memory(ptr,  len_)
+            gdb.execute("set var res = {}".format(os.write(file, buf.tobytes())))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 write = Write()
@@ -206,14 +206,14 @@ class Read(Breakpoint):
 
     def stop(self, bp):
         fr = gdb.selected_frame()
-        file, ptr, len_ = (arg.value() for arg in fr.block() if arg.is_argument)
+        file, ptr, len_ = (int(str(arg.value())) for arg in fr.block() if arg.is_argument)
 
         try:
             buf = os.read(file, len_)
             gdb.selected_inferior().write_memory(ptr, buf, len(buf))
             gdb.execute("set var res = {}".format(len(buf)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 read = Read()
@@ -225,7 +225,7 @@ class ReadAvailable(Breakpoint):
 
     def stop(self, bp):
         fr = gdb.selected_frame()
-        file, ptr, len_ = (arg.value() for arg in fr.block() if arg.is_argument)
+        file, ptr, len_ = (int(str(arg.value())) for arg in fr.block() if arg.is_argument)
 
         try:
             if os.isatty(file):
@@ -243,7 +243,7 @@ class ReadAvailable(Breakpoint):
             gdb.selected_inferior().write_memory(ptr, buf, len(buf))
             gdb.execute("set var res = {}".format(len(buf)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 read_available = ReadAvailable()
@@ -255,15 +255,15 @@ class Close(Breakpoint):
 
     def stop(self, bp):
         fr = gdb.selected_frame()
-        fd = next(arg.value() for arg in fr.block() if arg.is_argument)
+        fd = next(int(str(arg.value())) for arg in fr.block() if arg.is_argument)
 
         try:
             if fd == Flags.STDERR_FILENO or fd == Flags.STDOUT_FILENO or fd == Flags.STDIN_FILENO:
-                gdb.execute("set var err = ".format(Flags.EACCES))
+                gdb.execute("set var err = {}".format(Flags.EACCES))
             else:
                 gdb.execute("set var res = {}".format(os.close(fd)))
         except OSError as e:
-            gdb.execute("set var err = ".format(map_errno(e.errno, errno, Flags)))
+            gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
 close_ = Close()
