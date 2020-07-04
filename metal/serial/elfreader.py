@@ -114,7 +114,7 @@ class ELFReader:
                     continue
 
             if not elffile.has_dwarf_info():
-                raise Exception("This tool needs debug info.")
+                raise Exception("This tool needs gdb info.")
 
             dbg = elffile.get_dwarf_info()
 
@@ -159,7 +159,7 @@ class ELFReader:
                         loc.state.column
                     ))
                 except StopIteration:
-                    raise Exception('Could not find code location for {} at 0x{:x} - this is most likely due to missing debug symbols.'.format(msym.name, msym.address))
+                    raise Exception('Could not find code location for {} at 0x{:x} - this is most likely due to missing gdb symbols.'.format(msym.name, msym.address))
 
     def get_markers(self):
         return self.markers

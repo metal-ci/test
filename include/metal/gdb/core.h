@@ -1,5 +1,5 @@
 /**
- * @file   metal/break/core.h
+ * @file   metal/gdb/core.h
  * @date   03.07.2020
  * @author Klemens D. Morgenstern
  *

@@ -1,5 +1,5 @@
 /**
-* @file   syscalls.c
+* @file   syscall.c
 * @date   03.07.2020
 * @author Klemens D. Morgenstern
 *
@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <metal/break/core.h>
+#include <metal/gdb/core.h>
 #include <errno.h>
 
 int _open (char* file, int flags, int mode);
@@ -23,8 +23,8 @@ int _close(int);
 int _fstat(int fildes, struct stat* st)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.fstat", fildes, st, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.fstat", fildes, st, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -34,8 +34,8 @@ int _fstat(int fildes, struct stat* st)
 int _stat(const char* file, struct stat* st)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.stat", file, st, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.stat", file, st, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -44,8 +44,8 @@ int _stat(const char* file, struct stat* st)
 int _isatty(int file)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.isatty", file, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.isatty", file, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -55,8 +55,8 @@ int _isatty(int file)
 int _link(char* existing, char* _new)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.link", existing, _new, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.link", existing, _new, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -67,8 +67,8 @@ int _link(char* existing, char* _new)
 int _symlink(const char* path1, const char* path2)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.symlink", path1, path2, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.symlink", path1, path2, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -77,8 +77,8 @@ int _symlink(const char* path1, const char* path2)
 int _unlink(char* name)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.unlink", name, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.unlink", name, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -89,8 +89,8 @@ int _unlink(char* name)
 int _open(char* file, int flags, int mode)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.open", file, flags, mode, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.open", file, flags, mode, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -102,8 +102,8 @@ int _open(char* file, int flags, int mode)
 int _lseek(int file, int ptr, int dir)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.lseek", file, ptr, dir, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.lseek", file, ptr, dir, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -160,8 +160,8 @@ int _write(int file, char* ptr, int len)
     else
     {
         int res = -1;
-        int err = 0;
-        metal_break("syscalls.write", file, ptr, len, &res, &err);
+        int err = ENOSYS;
+        metal_break("syscall.write", file, ptr, len, &res, &err);
         if (err)
             errno = err;
         return res;
@@ -188,7 +188,7 @@ void _read_init_buffer(int fd)
     read_pos = 0;
 
     int buf_size = METAL_NEWLIB_BUFFER_SIZE;
-    metal_break("syscalls.read_init_buffer", read_fd, buf_size, read_buf, &read_end);
+    metal_break("syscall.read_available", read_fd, buf_size, read_buf, &read_end);
 }
 
 int _read_buffered(char* ptr, int len)
@@ -198,7 +198,7 @@ int _read_buffered(char* ptr, int len)
         read_pos = 0;
 
         int buf_size = METAL_NEWLIB_BUFFER_SIZE;
-        metal_break("syscalls.read_buffered", read_fd, buf_size, read_buf, &read_end);
+        metal_break("syscall.read_available", read_fd, buf_size, read_buf, &read_end);
     }
 
     //read what's available
@@ -222,8 +222,8 @@ int _read(int file, char* ptr, int len)
     else
     {
         int res = -1;
-        int err = 0;
-        metal_break("syscalls.read", file, ptr, len, &res, &err);
+        int err = ENOSYS;
+        metal_break("syscall.read", file, ptr, len, &res, &err);
         if (err)
             errno = err;
         return res;
@@ -238,8 +238,8 @@ int _close(int fildes)
 
 
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.close", fildes, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.close", fildes, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -250,8 +250,8 @@ int _close(int fildes)
 int _write(int file, char* ptr, int len)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.write", file, ptr, len, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.write", file, ptr, len, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -260,8 +260,8 @@ int _write(int file, char* ptr, int len)
 int _read(int file, char* ptr, int len)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.read", file, ptr, len, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.read", file, ptr, len, &res, &err);
     if (err)
         errno = err;
     return res;
@@ -271,8 +271,8 @@ int _read(int file, char* ptr, int len)
 int _close(int fildes)
 {
     int res = -1;
-    int err = 0;
-    metal_break("syscalls.close", filedes, &res, &err);
+    int err = ENOSYS;
+    metal_break("syscall.close", filedes, &res, &err);
     if (err)
         errno = err;
     return res;
