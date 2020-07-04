@@ -5,7 +5,6 @@ import pcpp
 from typing import List, Dict, Set, Tuple
 
 from .elfreader import Marker
-from .hooks import default_hooks
 from .location import Location
 
 
@@ -96,7 +95,12 @@ class Preprocessor(pcpp.Preprocessor):
 
 def preprocess_compile_unit(absolute_path: str,
                             markers: List[Marker], defines: List[str] = [], paths: List[str] = [],
-                            macros: List[str] = [hook.identifier for hook in default_hooks]):
+                            macros: List[str] = None):
+
+    if macros is None:
+        from metal.serial import default_hooks
+        macros = [hook.identifier for hook in default_hooks]
+
     proc = Preprocessor(set(macros))
     for m in macros:
         proc.define(m + '(...)')

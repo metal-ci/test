@@ -4,7 +4,6 @@ from typing import List
 import argparse
 
 from metal.serial.elfreader import ELFReader, Symbol, Marker
-from metal.serial.hooks import default_hooks
 from metal.serial.preprocessor import MacroExpansion, preprocess_compile_unit
 
 
@@ -35,14 +34,19 @@ class SerialInfo:
                     markers=[Marker.from_dict(marker) for marker in data['markers']])
 
 
-def generate(binary: str, defines: List[str] = [], paths: List[str] = [], macros: List[str] = [hook.identifier for hook in default_hooks]) -> SerialInfo:
-    elfReader = ELFReader(binary)
+def generate(binary: str, defines: List[str] = [], paths: List[str] = [], macros: List[str] = None) -> SerialInfo:
+
+    if macros is None:
+        from metal.serial import default_hooks
+        macros = [hook.identifier for hook in default_hooks]
+
+    elf_reader = ELFReader(binary)
 
     expansions : List[MacroExpansion] = []
-    for cu in elfReader.compile_units:
-        expansions = expansions + preprocess_compile_unit(cu.absolute_path, paths=paths, defines=defines, markers=elfReader.get_markers())
+    for cu in elf_reader.compile_units:
+        expansions = expansions + preprocess_compile_unit(cu.absolute_path, paths=paths, macros=macros, defines=defines, markers=elf_reader.get_markers())
 
-    return SerialInfo(elfReader.symbols, next(sym for sym in elfReader.symbols if sym.name == 'metal_serial_write'),expansions, elfReader.get_markers())
+    return SerialInfo(elf_reader.symbols, next(sym for sym in elf_reader.symbols if sym.name == 'metal_serial_write'),expansions, elf_reader.get_markers())
 
 
 if __name__ == '__main__':

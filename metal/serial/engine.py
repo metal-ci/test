@@ -8,7 +8,7 @@ from subprocess import PIPE, Popen
 
 from .elfreader import Marker
 from .generate import SerialInfo
-from .hooks import MacroHook, DefaultExit, default_hooks
+from .hooks import MacroHook, DefaultExit
 from .location import Location
 from .preprocessor import MacroExpansion
 from .read_symbols import Symbol
@@ -21,7 +21,6 @@ def bytes_needed(n: int ):
         return 1
     return int(log(n, 256)) + 1
 
-
 class Engine:
 
     serial_info: SerialInfo
@@ -31,14 +30,20 @@ class Engine:
     endianness: str
     base_pointer: int
 
-    macro_hooks : typing.List[MacroHook]
+    macro_hooks : typing.List[typing.Type[MacroHook]]
 
     def __init__(self, serial_info: SerialInfo, input: typing.IO, output: typing.Optional[typing.IO] = None,
-                 macro_hooks: typing.List[MacroHook] = default_hooks):
+                 macro_hooks: typing.List[MacroHook] = None):
+
+        if macro_hooks is None:
+            from metal.serial import default_hooks
+            self.macro_hooks = default_hooks
+        else:
+            self.macro_hooks = macro_hooks
+
         self.input = input
         self.output = output
         self.serial_info = serial_info
-        self.macro_hooks = macro_hooks
 
         # Initialize the connection
         target_version = self.read_string()

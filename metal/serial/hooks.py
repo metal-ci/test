@@ -37,5 +37,3 @@ class DefaultExit(MacroHook):
         return self.exit_code is None
 
 
-default_hooks: typing.List[typing.Type[MacroHook]] = [Init, DefaultExit]
-

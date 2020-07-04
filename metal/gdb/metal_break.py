@@ -4,6 +4,7 @@ from inspect import signature
 
 import gdb
 
+
 class MetalBreak(gdb.Breakpoint):
     def __init__(self):
         self.breaks = {}

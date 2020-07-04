@@ -7,7 +7,7 @@ from os import stat_result
 
 from metal.newlib import Flags, map_errno, map_open_flags, map_file_mode
 from metal.serial import Engine
-from metal.serial.hooks import MacroHook, default_hooks
+from metal.serial.hooks import MacroHook
 from metal.serial.preprocessor import MacroExpansion
 
 
@@ -256,4 +256,3 @@ class Syscall(MacroHook):
         super().__init__()
 
 
-default_hooks.append(Syscall)
