@@ -50,7 +50,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
             write_stat(engine, st)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def stat_(engine: Engine):
         try:
@@ -59,7 +59,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
             write_stat(engine, st)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
 
     def isatty(engine: Engine):
         try:
@@ -68,7 +68,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
             engine.write_int(isatty_)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def link(engine: Engine):
         try:
@@ -77,7 +77,7 @@ def build_newlib_hook(os_: os):
             os_.link(existing, _new)
             engine.write_int(0)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def symlink(engine: Engine):
         try:
@@ -86,7 +86,7 @@ def build_newlib_hook(os_: os):
             os_.symlink(existing, _new)
             engine.write_int(0)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def unlink(engine: Engine):
         try:
@@ -94,7 +94,7 @@ def build_newlib_hook(os_: os):
             os_.unlink(name)
             engine.write_int(0)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
 
     def lseek(engine: Engine):
         try:
@@ -104,7 +104,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(os_.lseek(file, ptr, dir_))
         except OSError as e:
             engine.write_int(-1)
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def open_full(engine: Engine):
         try:
@@ -114,7 +114,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(os_.open(file, flags, mode))
         except OSError as e:
             engine.write_int(-1)
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     unchecked_map: typing.Dict[int, int] = {}
     
@@ -141,7 +141,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
         except OSError as e:
             engine.write_int(-1)
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def close_unchecked(engine: Engine):
         target_fd = engine.read_int()
@@ -165,7 +165,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(os_.write(fd, dt))
         except OSError as e:
             engine.write_int(-1)
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def write_unchecked(engine: Engine):
         fd = engine.read_int()
@@ -188,7 +188,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
             engine.write_memory(buf)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def read_buffered(engine: Engine):
         try:
@@ -205,7 +205,7 @@ def build_newlib_hook(os_: os):
             engine.write_int(0)
             engine.write_memory(buf)
         except OSError as e:
-            engine.write_int(map_errno(int(str((e))), errno, Flags))
+            engine.write_int(map_errno(int(str(e)), errno, Flags))
     
     def read(engine: Engine, tp: str):
         if tp == 'full':

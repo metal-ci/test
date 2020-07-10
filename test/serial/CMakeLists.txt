@@ -12,8 +12,6 @@ add_executable(newlib_full newlib_full.c ${CMAKE_SOURCE_DIR}/src/metal/serial/sy
 target_compile_definitions(newlib_full PUBLIC -DMETAL_SERIAL_SYSCALLS_MODE=METAL_SERIAL_SYSCALLS_MODE_FULL)
 
 get_target_property(LIBA_INCLUDES read_test INCLUDE_DIRECTORIES)
-message("Including ${LIBA_INCLUDES}, ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}, ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}")
-
 
 add_test(NAME read_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read_test_runner.py
         $<TARGET_FILE:read_test> --include=${PROJECT_SOURCE_DIR}/include

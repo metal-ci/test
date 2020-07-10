@@ -8,11 +8,13 @@
 #ifndef METAL_TEST_BREAK_CORE_H
 #define METAL_TEST_BREAK_CORE_H
 
+#include <stdarg.h>
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-void __attribute__((weak, optimize("-O0"), noinline)) metal_break(const char* identifier __attribute__((unused)), ...)
+void __attribute__((weak, optimize(0), noinline)) metal_break(const char* identifier __attribute__((unused)), ...)
 {
     asm("");
 }

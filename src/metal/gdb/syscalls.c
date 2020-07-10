@@ -19,6 +19,9 @@ int _write(int file, char* ptr, int len);
 int _lseek(int file, int ptr, int dir);
 int _close(int);
 
+int _stat(const char* file, struct stat* st);
+int _fstat(int fildes, struct stat* st);
+
 
 int _fstat(int fildes, struct stat* st)
 {
@@ -35,6 +38,7 @@ int _stat(const char* file, struct stat* st)
 {
     int res = -1;
     int err = ENOSYS;
+
     metal_break("syscall.stat", file, st, &res, &err);
     if (err)
         errno = err;

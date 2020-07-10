@@ -1,12 +1,11 @@
 import gdb
-import metal
+from metal.gdb.metal_break import MetalBreakpoint
 
 
-class ExitBreakpoint(gdb.Breakpoint, metal.gdb.Breakpoint):
+class ExitBreakpoint(gdb.Breakpoint, MetalBreakpoint):
     def __init__(self):
         gdb.Breakpoint.__init__(self, "_exit")
-        metal.gdb.Breakpoint.__init__(self, 'exit')
-
+        MetalBreakpoint.__init__(self, 'exit')
         self.__exit_event = lambda event: self.handle_exit_event(event)
 
     def handle_exit_event(self, event):

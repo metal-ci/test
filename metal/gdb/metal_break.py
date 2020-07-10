@@ -13,17 +13,15 @@ class MetalBreak(gdb.Breakpoint):
     def stop(self):
         fr = gdb.selected_frame()
         try:
-
             args = [arg for arg in fr.block() if arg.is_argument]
 
             fr.older().select()
-            metal_breakpoint = str(args[0].value())
+            metal_breakpoint = str(args[0].value(fr).string())
 
             if metal_breakpoint in self.breaks:
                 try:
                     for bp in self.breaks[metal_breakpoint]:
-
-                        if len(signature(bp.stop).parameters) == 1:
+                        if len(signature(bp.stop).parameters) == 0:
                             bp.stop()
                         else:
                             bp.stop(self)
@@ -39,7 +37,7 @@ class MetalBreak(gdb.Breakpoint):
             fr.select()
 
     def add_metal_breakpoint(self, bp):
-        if bp.identifier in self.breaks:
+        if bp.identifier not in self.breaks:
             self.breaks[bp.identifier] = [bp]
         else:
             self.breaks[bp.identifier].append(bp)
@@ -70,3 +68,7 @@ class Breakpoint:
     @abstractmethod
     def stop(self, gdb_breakpoint):
         pass
+
+
+# Disambiguation from gdb.Breakpoint
+MetalBreakpoint = Breakpoint
