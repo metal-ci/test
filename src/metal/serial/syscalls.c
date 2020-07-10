@@ -11,6 +11,7 @@
 #include <metal/serial/syscalls.h>
 #include <errno.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define METAL_SERIAL_SYSCALL(...) METAL_SERIAL_WRITE_MARKER();
 
@@ -245,13 +246,13 @@ int _open(char* file, int flags, int mode)
     }
     return res;
 #elif METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
-    METAL_SERIAL_SYSCALL(open, unchecked);
     //can only write!
-    if ((flags & O_RDWR) || (flags & O_RDONLY))
+    if ((flags == O_RDWR) || (flags == O_RDONLY))
     {
         errno = EACCES;
         return -1;
     }
+    METAL_SERIAL_SYSCALL(open, unchecked);
 
     METAL_SERIAL_WRITE_STR(file);
     METAL_SERIAL_WRITE_INT(flags);
@@ -357,6 +358,9 @@ int _read_impl(int file, char* ptr, int len)
     int read_len = 0;
     METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
     return read_len;
+#elif METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
+    errno = EACCES;
+    return -1;
 #else
     errno = EBADF;
     return -1;
