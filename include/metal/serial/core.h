@@ -38,9 +38,9 @@ char metal_serial_read();
 {                                                           \
     const char sz = metal_serial_read();                    \
     (value) = 0;                                            \
-    unsigned int idx; \
-    for (idx = 0u; idx < sz; idx++)            \
-         (value) |= metal_serial_read() << (idx << 3);      \
+    unsigned int idx;                                       \
+    for (idx = 0u; idx < sz; idx++)                         \
+         (value) |= (metal_serial_read() & 0xFF) << (idx << 3u);     \
 }
 
 

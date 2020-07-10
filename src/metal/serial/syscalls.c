@@ -15,7 +15,6 @@
 
 #define METAL_SERIAL_SYSCALL(...) METAL_SERIAL_WRITE_MARKER();
 
-
 #if !defined(METAL_SERIAL_SYSCALLS_MODE) && !__PCPP_ALWAYS_TRUE__
 #warning "'METAL_SERIAL_SYSCALLS_MODE' not defined, defaulting to METAL_SERIAL_SYSCALLS_MODE_UNCHECKED"
 #define METAL_SERIAL_SYSCALLS_MODE METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
@@ -61,7 +60,7 @@ void _read_stat_impl(struct stat * st)
 
 int _fstat(int fildes, struct stat* st)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(fstat);
     METAL_SERIAL_WRITE_INT(fildes);
     int res = 0;
@@ -80,11 +79,9 @@ int _fstat(int fildes, struct stat* st)
 #endif
 }
 
-
-
 int _stat(const char* file, struct stat* st)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(stat);
     METAL_SERIAL_WRITE_STR(file);
     int err = 0;
@@ -105,7 +102,7 @@ int _stat(const char* file, struct stat* st)
 
 int _isatty(int file)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(isatty);
     METAL_SERIAL_WRITE_INT(file);
 
@@ -131,7 +128,7 @@ int _isatty(int file)
 
 int _link(char* existing, char* _new)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(link);
 
     METAL_SERIAL_WRITE_STR(existing);
@@ -154,7 +151,7 @@ int _link(char* existing, char* _new)
 
 int _symlink(const char* path1, const char* path2)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(symlink);
 
     METAL_SERIAL_WRITE_STR(path1);
@@ -179,7 +176,7 @@ int _symlink(const char* path1, const char* path2)
 
 int _unlink(char* name)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(unlink);
     METAL_SERIAL_WRITE_STR(name);
     int err = 0;
@@ -200,7 +197,7 @@ int _unlink(char* name)
 
 int _lseek(int file, int ptr, int dir)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(unlink);
 
     METAL_SERIAL_WRITE_INT(file);
@@ -230,7 +227,7 @@ static int _open_fd_gen = 2;
 
 int _open(char* file, int flags, int mode)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(open, full);
     METAL_SERIAL_WRITE_STR(file);
     METAL_SERIAL_WRITE_INT(flags);
@@ -245,7 +242,8 @@ int _open(char* file, int flags, int mode)
         return -1;
     }
     return res;
-#elif METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
+#endif
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED) || __PCPP_ALWAYS_TRUE__
     //can only write!
     if ((flags == O_RDWR) || (flags == O_RDONLY))
     {
@@ -270,7 +268,7 @@ int _open(char* file, int flags, int mode)
 
 int _close(int fildes)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(close, full);
     METAL_SERIAL_WRITE_INT(fildes);
 
@@ -282,8 +280,8 @@ int _close(int fildes)
         return -1;
     }
     return 0;
-
-#elif METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
+#endif
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(close, unchecked);
     METAL_SERIAL_WRITE_INT(fildes);
     return 0;
@@ -314,12 +312,13 @@ int _read(int file, char* ptr, int len)
     errno = EBADF;
     return -1;
 }
-#else
+#endif
+#if (METAL_SERIAL_SYSCALLS_MODE != METAL_SERIAL_SYSCALLS_MODE_BLOCKED) || __PCPP_ALWAYS_TRUE__
 
 
 int _write_impl(int file, char* ptr, int len)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(write, full);
     METAL_SERIAL_WRITE_INT(file);
     METAL_SERIAL_WRITE_MEMORY(ptr, len);
@@ -334,7 +333,8 @@ int _write_impl(int file, char* ptr, int len)
         return -1;
     }
     return res;
-#else
+#endif
+#if (METAL_SERIAL_SYSCALLS_MODE != METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(write, unchecked);
     METAL_SERIAL_WRITE_INT(file);
     METAL_SERIAL_WRITE_MEMORY(ptr, len);
@@ -344,7 +344,7 @@ int _write_impl(int file, char* ptr, int len)
 
 int _read_impl(int file, char* ptr, int len)
 {
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
     METAL_SERIAL_SYSCALL(read, full);
     METAL_SERIAL_WRITE_INT(file);
     METAL_SERIAL_WRITE_INT(len);
@@ -358,7 +358,8 @@ int _read_impl(int file, char* ptr, int len)
     int read_len = 0;
     METAL_SERIAL_READ_MEMORY(ptr, len, read_len);
     return read_len;
-#elif METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
+#endif
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_UNCHECKED) || __PCPP_ALWAYS_TRUE__
     errno = EACCES;
     return -1;
 #else
@@ -418,7 +419,7 @@ int _write(int file, char* ptr, int len)
 }
 
 
-#if METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL
+#if (METAL_SERIAL_SYSCALLS_MODE == METAL_SERIAL_SYSCALLS_MODE_FULL) || __PCPP_ALWAYS_TRUE__
 
 //read buffer
 static int read_fd = -1;

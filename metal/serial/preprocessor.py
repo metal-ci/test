@@ -79,6 +79,9 @@ class Preprocessor(pcpp.Preprocessor):
     def __init__(self, macros: Set[str]):
         super().__init__()
 
+        self.define("__PCPP_ALWAYS_FALSE__ 0")
+        self.define("__PCPP_ALWAYS_TRUE__ 1")
+
         self.__macros = macros
         self.expanded_macros = []
 
