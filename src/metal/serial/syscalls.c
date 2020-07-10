@@ -10,11 +10,12 @@
 #include <metal/serial/core.h>
 #include <metal/serial/syscalls.h>
 #include <errno.h>
-#include <fcntl.h>
+#include <unistd.h>
 
-#define METAL_SERIAL_SYSCALL(...) METAL_SERIAL_WRITE_LOCATION()
+#define METAL_SERIAL_SYSCALL(...) METAL_SERIAL_WRITE_MARKER();
 
-#if !defined(METAL_SERIAL_SYSCALLS_MODE)
+
+#if !defined(METAL_SERIAL_SYSCALLS_MODE) && !__PCPP_ALWAYS_TRUE__
 #warning "'METAL_SERIAL_SYSCALLS_MODE' not defined, defaulting to METAL_SERIAL_SYSCALLS_MODE_UNCHECKED"
 #define METAL_SERIAL_SYSCALLS_MODE METAL_SERIAL_SYSCALLS_MODE_UNCHECKED
 #endif
@@ -297,8 +298,8 @@ int _write(int file, char* ptr, int len)
 {
     if ((file == STDOUT_FILENO) || (file == STDERR_FILENO))
     {
-        METAL_SERIAL_SYSCALL(write, unchecked);
-        METAL_SERIAL_WRITE_INT(fd);
+        METAL_SERIAL_SYSCALL(write, blocked);
+        METAL_SERIAL_WRITE_INT(file);
         METAL_SERIAL_WRITE_MEMORY(ptr, len);
         return len;
     }

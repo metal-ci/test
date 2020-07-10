@@ -1,10 +1,15 @@
-import traceback
-
 import gdb
 import threading
 import datetime
 import time
 
+def wrap(func, ev):
+    try:
+        func(ev)
+    except gdb.error as e:
+        import traceback
+        gdb.write("Error in metal/gdb/-timeout.py: {}\n\n{}".format(e, traceback.format_exc()), gdb.STDERR)
+        raise e
 
 class Timeout(gdb.Parameter):
     def __init__(self):
@@ -17,6 +22,26 @@ class Timeout(gdb.Parameter):
         self.gdb_running = False
         self.i_am_interrupting = False
         self.gdb_exited = False
+
+        self.__cont   = lambda ev: wrap(self.cont, ev)
+        self.__stop   = lambda ev: wrap(self.stop, ev)
+        self.__exited = lambda ev: wrap(self.exit, ev)
+
+    def connect_events(self):
+        gdb.events.cont.  connect(self.__cont)
+        gdb.events.stop.  connect(self.__stop)
+        gdb.events.exited.connect(self.__exited)
+
+    def disconnect_events(self):
+        gdb.events.cont.  disconnect(self.__cont)
+        gdb.events.stop.  disconnect(self.__stop)
+        gdb.events.exited.disconnect(self.__exited)
+
+    def __enter__(self):
+        self.connect_events()
+
+    def __exit__(self):
+        self.disconnect_events()
 
     set_doc = '''Set a timeout for the gdb execution.'''
     show_doc = '''This parameter sets a time out for the gdb execution.'''
@@ -55,22 +80,7 @@ class Timeout(gdb.Parameter):
 
     def quit(self):
         gdb.write("Timeout reached, interrupting execution\n", gdb.STDERR)
-        gdb.execute("quit 2")
+        gdb.execute("quit -1")
 
     def exit(self, ev): self.gdb_exited = True
 
-
-def wrap(func, ev):
-    try:
-        func(ev)
-    except gdb.error as e:
-        gdb.write("Error in metal-timeout.py: {}".format(e), gdb.STDERR)
-        traceback.print_exc()
-        raise e
-
-
-timeout = Timeout()
-
-gdb.events.cont.connect(lambda ev: wrap(timeout.cont, ev))
-gdb.events.stop.connect(lambda ev: wrap(timeout.stop, ev))
-gdb.events.exited.connect(lambda ev: wrap(timeout.exit, ev))

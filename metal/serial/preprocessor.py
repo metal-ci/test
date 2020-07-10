@@ -101,6 +101,8 @@ def preprocess_compile_unit(absolute_path: str,
         from metal.serial import default_hooks
         macros = [hook.identifier for hook in default_hooks]
 
+    macros.extend(['METAL_SERIAL_INIT', 'METAL_SERIAL_EXIT'])
+
     proc = Preprocessor(set(macros))
     for m in macros:
         proc.define(m + '(...)')
@@ -112,7 +114,8 @@ def preprocess_compile_unit(absolute_path: str,
     proc.parse(open(absolute_path).read(), absolute_path)
     proc.write(open(os.devnull, 'w'))
 
-    for marker in markers:
+
+    for marker in (marker for marker in markers if marker.file == absolute_path):
         exps = [expanded_macro for expanded_macro in proc.expanded_macros if expanded_macro.file == marker.file and expanded_macro.line == marker.line]
 
         if len(exps) == 0:

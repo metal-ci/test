@@ -1,7 +1,5 @@
 import errno
 import stat
-import traceback
-
 import gdb
 import os
 
@@ -10,14 +8,15 @@ from metal.newlib import Flags, map_errno, map_file_mode, map_open_flags
 
 
 class FStat(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.fstat")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         fd = next(int(str(arg.value())) for arg in fr.block() if arg.is_argument)
         try:
-            st = os.fstat(fd)
+            st = self.os_.fstat(fd)
 
             gdb.execute("set var st->st_dev   = {}".format(st.st_dev))
             gdb.execute("set var st->st_ino   = {}".format(st.st_ino))
@@ -36,23 +35,25 @@ class FStat(Breakpoint):
             gdb.execute("set var st->st_mtime.tv_nsec = {}".format(st.st_mtime_ns % 1000000000))
             gdb.execute("set var st->st_ctime.tv_nsec = {}".format(st.st_ctime_ns % 1000000000))
 
+            if hasattr(st, 'st_rdev'):    gdb.execute("set var st->st_rdev = {}".format(getattr(st, 'st_rdev')))
+            if hasattr(st, 'st_blksize'): gdb.execute("set var st->st_blksize = {}".format(getattr(st, 'st_blksize')))
+            if hasattr(st, 'st_blocks'):  gdb.execute("set var st->st_blocks = {}".format(getattr(st, 'st_blocks')))
+
             gdb.execute("set var res = 0")
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-fstat = FStat()
-
-
 class Stat(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.stat")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         file = next(str(arg.value()) for arg in fr.block() if arg.is_argument)
         try:
-            st = os.stat(file)
+            st = self.os_.stat(file)
 
             gdb.execute("set var st->st_dev   = {}".format(st.st_dev))
             gdb.execute("set var st->st_ino   = {}".format(st.st_ino))
@@ -71,82 +72,76 @@ class Stat(Breakpoint):
             gdb.execute("set var st->st_mtime.tv_nsec = {}".format(st.st_mtime_ns % 1000000000))
             gdb.execute("set var st->st_ctime.tv_nsec = {}".format(st.st_ctime_ns % 1000000000))
 
+            if hasattr(st, 'st_rdev'):    gdb.execute("set var st->st_rdev = {}".format(getattr(st, 'st_rdev')))
+            if hasattr(st, 'st_blksize'): gdb.execute("set var st->st_blksize = {}".format(getattr(st, 'st_blksize')))
+            if hasattr(st, 'st_blocks'):  gdb.execute("set var st->st_blocks = {}".format(getattr(st, 'st_blocks')))
+
             gdb.execute("set var res = 0")
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-stat_ = Stat()
-
-
 class IsAtty(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.isatty")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         fd = next(int(str(arg.value())) for arg in fr.block() if arg.is_argument)
         try:
-            gdb.execute("set var res = {}".format(os.isatty(fd)))
+            gdb.execute("set var res = {}".format(self.os_.isatty(fd)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-isAtty = IsAtty()
-
-
 class Link(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.link")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         [existing, new_] = [str(arg.value()) for arg in fr.block() if arg.is_argument]
         try:
-            os.link(existing, new_)
+            self.os_.link(existing, new_)
             gdb.execute("set var res = 0")
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-link = Link()
-
-
 class Symlink(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.symlink")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         [existing, new_] = [str(arg.value()) for arg in fr.block() if arg.is_argument]
         try:
-            os.symlink(existing, new_)
+            self.os_.symlink(existing, new_)
             gdb.execute("set var res = 0")
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-symlink = Symlink()
-
-
 class Unlink(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.unlink")
 
     def stop(self, bp):
         fr = gdb.selected_frame()
         name = next(str(arg.value()) for arg in fr.block() if arg.is_argument)
         try:
-            gdb.execute("set var res = {}".format(os.unlink(name)))
+            gdb.execute("set var res = {}".format(self.os_.unlink(name)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-unlink = Unlink()
-
-
 class Open(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.open")
 
     def stop(self, bp):
@@ -157,16 +152,14 @@ class Open(Breakpoint):
         mode = map_file_mode(int(str(next(itr))))
 
         try:
-            gdb.execute("set var res = {}".format(os.open(file, flags, mode)))
+            gdb.execute("set var res = {}".format(self.os_.open(file, flags, mode)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-open_ = Open()
-
-
 class LSeek(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.lseek")
 
     def stop(self, bp):
@@ -174,16 +167,14 @@ class LSeek(Breakpoint):
         file, ptr, dir_ = (arg.value() for arg in fr.block() if arg.is_argument)
 
         try:
-            gdb.execute("set var res = {}".format(os.lseek(file, ptr, dir_)))
+            gdb.execute("set var res = {}".format(self.os_.lseek(file, ptr, dir_)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-lseek = LSeek()
-
-
 class Write(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.write")
 
     def stop(self, bp):
@@ -192,16 +183,14 @@ class Write(Breakpoint):
 
         try:
             buf = gdb.selected_inferior().read_memory(ptr,  len_)
-            gdb.execute("set var res = {}".format(os.write(file, buf.tobytes())))
+            gdb.execute("set var res = {}".format(self.os_.write(file, buf.tobytes())))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-write = Write()
-
-
 class Read(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.read")
 
     def stop(self, bp):
@@ -209,18 +198,16 @@ class Read(Breakpoint):
         file, ptr, len_ = (int(str(arg.value())) for arg in fr.block() if arg.is_argument)
 
         try:
-            buf = os.read(file, len_)
+            buf = self.os_.read(file, len_)
             gdb.selected_inferior().write_memory(ptr, buf, len(buf))
             gdb.execute("set var res = {}".format(len(buf)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-read = Read()
-
-
 class ReadAvailable(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.read_available")
 
     def stop(self, bp):
@@ -228,29 +215,27 @@ class ReadAvailable(Breakpoint):
         file, ptr, len_ = (int(str(arg.value())) for arg in fr.block() if arg.is_argument)
 
         try:
-            if os.isatty(file):
+            if self.os_.isatty(file):
                 gdb.execute("set.var res = 0")  # No reading for terminal
                 return
 
-            cur = os.lseek(file, 0, os.SEEK_CUR)
-            end = os.lseek(file, 0, os.SEEK_END)
+            cur = self.os_.lseek(file, 0, self.os_.SEEK_CUR)
+            end = self.os_.lseek(file, 0, self.os_.SEEK_END)
 
             available = end - cur
-            os.lseek(file, cur, os.SEEK_SET)
+            self.os_.lseek(file, cur, self.os_.SEEK_SET)
             read_len = min(available, len_)
 
-            buf = os.read(file, read_len)
+            buf = self.os_.read(file, read_len)
             gdb.selected_inferior().write_memory(ptr, buf, len(buf))
             gdb.execute("set var res = {}".format(len(buf)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-read_available = ReadAvailable()
-
-
 class Close(Breakpoint):
-    def __init__(self):
+    def __init__(self, os_=os):
+        self.os_ = os_
         Breakpoint.__init__(self, "syscall.close")
 
     def stop(self, bp):
@@ -261,9 +246,22 @@ class Close(Breakpoint):
             if fd == Flags.STDERR_FILENO or fd == Flags.STDOUT_FILENO or fd == Flags.STDIN_FILENO:
                 gdb.execute("set var err = {}".format(Flags.EACCES))
             else:
-                gdb.execute("set var res = {}".format(os.close(fd)))
+                gdb.execute("set var res = {}".format(self.os_.close(fd)))
         except OSError as e:
             gdb.execute("set var err = {}".format(map_errno(e.errno, errno, Flags)))
 
 
-close_ = Close()
+class NewlibBreakpoints:
+    def __init__(self, os_=os):
+        self.fstat = FStat(os_)
+        self.stat_ = Stat(os_)
+        self.is_atty = IsAtty(os_)
+        self.link = Link(os_)
+        self.symlink = Symlink(os_)
+        self.unlink = Unlink(os_)
+        self.open_ = Open(os_)
+        self.lseek = LSeek(os_)
+        self.write = Write(os_)
+        self.read = Read(os_)
+        self.read_available = ReadAvailable(os_)
+        self.close_ = Close(os_)

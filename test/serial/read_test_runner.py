@@ -1,20 +1,9 @@
-import json
-import re
-import sys
 import argparse
-from typing import List
 
-import pcpp
-from elftools.elf.descriptions import describe_reloc_type
-from elftools.elf.relocation import RelocationSection
-from elftools.elf.sections import SymbolTableSection
+from metal.serial import Engine
+from subprocess import PIPE, Popen
 
-from metal.serial import Engine, read_symbols
-from subprocess import PIPE, Popen, check_output
-
-from metal.serial.elfreader import ELFReader
 from metal.serial.generate import generate
-from metal.serial.preprocessor import preprocess_compile_unit, MacroExpansion
 
 parser = argparse.ArgumentParser()
 

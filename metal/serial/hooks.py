@@ -19,8 +19,7 @@ class Init(MacroHook):
     def invoke(self, engine: 'Engine', macro_expansion: 'MacroExpansion'):
         pass
 
-
-class DefaultExit(MacroHook):
+class Exit(MacroHook):
     identifier = 'METAL_SERIAL_EXIT'
     exit_code: typing.Optional[int]
 

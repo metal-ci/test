@@ -1,4 +1,4 @@
-from metal.serial.hooks import DefaultExit, Init, MacroHook
+from metal.serial.hooks import Exit, Init, MacroHook
 
 from .elfreader import ELFReader, Marker, Symbol
 from .generate import generate

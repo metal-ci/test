@@ -529,3 +529,4 @@ def map_errno(value, from_=Flags, to=errno):
     if value & from_.EWOULDBLOCK    : out |= to.EWOULDBLOCK
 
     return out
+

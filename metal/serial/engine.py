@@ -8,7 +8,7 @@ from subprocess import PIPE, Popen
 
 from .elfreader import Marker
 from .generate import SerialInfo
-from .hooks import MacroHook, DefaultExit
+from .hooks import MacroHook, Exit, Init
 from .location import Location
 from .preprocessor import MacroExpansion
 from .read_symbols import Symbol
@@ -33,13 +33,24 @@ class Engine:
     macro_hooks : typing.List[typing.Type[MacroHook]]
 
     def __init__(self, serial_info: SerialInfo, input: typing.IO, output: typing.Optional[typing.IO] = None,
-                 macro_hooks: typing.List[MacroHook] = None):
+                 macro_hooks: typing.List[typing.Type[MacroHook]] = None):
 
         if macro_hooks is None:
             from metal.serial import default_hooks
             self.macro_hooks = default_hooks
         else:
             self.macro_hooks = macro_hooks
+
+        try:
+            next(h for h in self.macro_hooks if isinstance(h, Init))
+        except StopIteration:
+            self.macro_hooks.append(Init)
+
+        try:
+            next(h for h in self.macro_hooks if isinstance(h, Exit))
+        except StopIteration:
+            self.macro_hooks.append(Exit)
+
 
         self.input = input
         self.output = output
@@ -118,7 +129,10 @@ class Engine:
         self.output.flush()
 
     def read_location(self) -> int:
-        return self.read_int() - self.base_pointer
+        p =  self.read_int()
+        if p < self.base_pointer:
+            raise Exception("The value read was {}, which doesn't seem to be a code location".format(p))
+        return p - self.base_pointer
 
     def write_memory(self, input: bytes) -> int:
         self.write_int(len(input))
@@ -126,19 +140,16 @@ class Engine:
         self.output.flush()
         return self.read_int()
 
-
     def read_memory(self) -> bytes:
         sz = self.read_int()
         return self.input.read(sz)
     
-    def find_symbol(self, addr: int)-> str:
+    def find_symbol(self, addr: int) -> str:
         for name, address in self.symbols:
             if address == addr:
                 return name
 
     def find_marker(self, addr: int) -> Marker:
-        msg = '0x{:x}\n'.format(addr).encode()
-
         try:
             return next(marker for marker in self.serial_info.markers if marker.address == addr)
         except StopIteration:
@@ -152,15 +163,17 @@ class Engine:
 
     def run(self) -> int:
         hooks = [Hook() for Hook in self.macro_hooks]
-        exit_code_hook = next(hook for hook in hooks if isinstance(hook, DefaultExit))
+        exit_code_hook = next(hook for hook in hooks if isinstance(hook, Exit))
 
         while exit_code_hook.running:
             next_marker = self.find_marker(self.read_location())
             macro_expansion = self.find_macro_expansion(next_marker)
             try:
-                next((hook for hook in hooks if hook.identifier == macro_expansion.name)).invoke(self, macro_expansion)
+                hook = next((hook for hook in hooks if hook.identifier == macro_expansion.name))
+                hook.invoke(self, macro_expansion)
             except StopIteration:
                 raise Exception("Cannot find hook for macro '{}'".format(macro_expansion.name))
+
         for hook in hooks:
             hook.exit(exit_code_hook.exit_code)
 
