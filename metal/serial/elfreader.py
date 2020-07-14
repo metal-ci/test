@@ -6,8 +6,7 @@ from elftools.dwarf.lineprogram import LineProgramEntry,  LineProgram
 from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import SymbolTableSection
 
-from itanium_demangler import parse as demangle
-
+import cxxfilt
 
 class Symbol:
     name: str
@@ -19,8 +18,12 @@ class Symbol:
         self.name = name
         self.address = address
         self.symbol_type = symbol_type
+
         if demangled_name is None:
-            self.demangled_name = demangle(name)
+            try:
+                self.demangled_name = cxxfilt.demangle(name.split('@')[0])
+            except:
+                self.demangled_name = demangled_name
         else:
             self.demangled_name = demangled_name
 

@@ -33,7 +33,7 @@ class Engine:
     macro_hooks : typing.List[typing.Type[MacroHook]]
 
     def __init__(self, serial_info: SerialInfo, input: typing.IO, output: typing.Optional[typing.IO] = None,
-                 macro_hooks: typing.List[typing.Type[MacroHook]] = None):
+                 macro_hooks: typing.List[typing.Callable[[], MacroHook]] = None):
 
         if macro_hooks is None:
             from metal.serial import default_hooks
