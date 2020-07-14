@@ -1,0 +1,6 @@
+#ifndef METAL_TEST_CPPUTEST_HPP
+#define METAL_TEST_CPPUTEST_HPP
+
+#include <cpputest
+
+#endif //METAL_TEST_CPPUTEST_HPP
