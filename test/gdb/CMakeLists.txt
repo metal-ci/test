@@ -18,3 +18,13 @@ add_test(argv_gdb
         COMMAND PYTHONPATH=$PYTHONPATH:${PROJECT_SOURCE_DIR}
         gdb --command=${CMAKE_CURRENT_BINARY_DIR}/argv_gdb.gdbinit $<TARGET_FILE:argv_gdb> ${CMAKE_CURRENT_BINARY_DIR}/argv_gdb.gdbinit
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
+
+add_executable(unit_gdb unit_gdb.c)
+configure_file(unit_gdb.gdbinit ${CMAKE_CURRENT_BINARY_DIR}/unit_gdb.gdbinit)
+set_target_properties(unit_gdb   PROPERTIES COMPILE_FLAGS "-g1 -ggdb -fno-omit-frame-pointer")
+
+add_test(unit_gdb
+        COMMAND PYTHONPATH=$PYTHONPATH:${PROJECT_SOURCE_DIR}
+        gdb --command=${CMAKE_CURRENT_BINARY_DIR}/unit_gdb.gdbinit $<TARGET_FILE:unit_gdb> ${CMAKE_CURRENT_BINARY_DIR}/unit_gdb.gdbinit
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})

@@ -5,10 +5,14 @@
  *
  */
 
-#ifndef METAL_TEST_BREAK_CORE_H
-#define METAL_TEST_BREAK_CORE_H
+#ifndef METAL_TEST_GDB_CORE_H
+#define METAL_TEST_GDB_CORE_H
 
-#include <stdarg.h>
+#define METAL_TEST_GDB 1
+
+#if METAL_TEST_SERIAL
+#error "Cannot use metal.gdb and metal.serial in the same compile unit"
+#endif
 
 #if defined(__cplusplus)
 extern "C" {

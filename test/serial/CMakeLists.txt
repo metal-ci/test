@@ -14,6 +14,8 @@ target_compile_definitions(newlib_full PUBLIC -DMETAL_SERIAL_SYSCALLS_MODE=METAL
 
 add_executable(argv_serial argv.c)
 
+add_executable(unit_serial unit.c)
+
 
 add_test(NAME read_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read_test_runner.py
         $<TARGET_FILE:read_test> --include=${PROJECT_SOURCE_DIR}/include

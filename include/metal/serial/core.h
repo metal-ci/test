@@ -1,5 +1,12 @@
-#ifndef METAL_SERIAL_H_
-#define METAL_SERIAL_H_
+#ifndef METAL_TEST_SERIAL_H_
+#define METAL_TEST_SERIAL_H_
+
+#define METAL_TEST_SERIAL 1
+
+#if METAL_TEST_GDB
+#error "Cannot use metal.gdb and metal.serial in the same compile unit"
+#endif
+
 
 #if defined(__cplusplus)
 #include <cstdint>
