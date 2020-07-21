@@ -149,9 +149,10 @@ class ELFReader:
                     abs_file_entry = file_entry_to_abs(linep['file_entry'][loc.state.file - 1], linep)
 
                     # check if marker already exists -
-                    for existing_marker in self.markers:
-                        if loc.state.line == existing_marker.line and loc.state.column == existing_marker.column and existing_marker.file == abs_file_entry:
-                            raise Exception("Duplicate code markers found at {}({})".format(existing_marker.file, existing_marker.line))
+                    #for existing_marker in self.markers:
+                    #    if loc.state.line == existing_marker.line and loc.state.column == existing_marker.column and existing_marker.file == abs_file_entry:
+                    #        print(msym.name, existing_marker.name)
+                    #        raise Exception("Duplicate code markers found at {}({})".format(existing_marker.file, existing_marker.line))
 
                     self.markers.append(Marker(
                         msym.name,

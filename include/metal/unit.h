@@ -50,7 +50,7 @@ const static void * metal_error_label = 0;
 #define METAL_CRITICAL_1(Assertion) METAL_CRITICAL_2(Assertion, )
 #define METAL_CRITICAL(...) METAL_PP_OVERLOAD(METAL_CRITICAL_, __VA_ARGS__)(__VA_ARGS__)
 
-#if (__STDC_VERSION__ >= 199901L) || defined(__cplusplus)
+#if (__STDC_VERSION__ >= 199901L) || defined(__cplusplus) || __PCPP_ALWAYS_TRUE__
 
 #define METAL_CRITICAL_SECTION(Result) \
     goto METAL_PP_CONCAT(metal_section_label, __LINE__); \
@@ -124,7 +124,7 @@ metal_bool __attribute__((weak)) metal_test_errored = 1;
 #define METAL_EXPECT_MESSAGE(Condition, Message) { int cond = Condition ? 1 : 0;  METAL_TEST_REPORT(message, expect, Condition, Message); METAL_EXPECT_IMPL(cond); }
 
 #define METAL_CALL_1(Function)              {                                        METAL_TEST_REPORT(call, enter, 1, Function); Function();              METAL_TEST_REPORT(call, exit, METAL_ERROR(), Function); }
-#define METAL_CALL_2(Function, Description) { const char *description = Description; METAL_TEST_REPORT(call, enter, 1, Function, description); Function(); METAL_TEST_REPORT(call, exit, METAL_ERROR(), Function); }
+#define METAL_CALL_2(Function, Description) { const char *description = Description; METAL_TEST_REPORT(call, enter, 1, Function, Description); Function(); METAL_TEST_REPORT(call, exit, METAL_ERROR(), Function); }
 #define METAL_CALL(...) METAL_PP_OVERLOAD(METAL_CALL_, __VA_ARGS__)(__VA_ARGS__)
 
 #define METAL_LOG(Message) METAL_TEST_REPORT(log, info, 1, Message)

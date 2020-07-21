@@ -117,13 +117,12 @@ def preprocess_compile_unit(absolute_path: str,
     proc.parse(open(absolute_path).read(), absolute_path)
     proc.write(open(os.devnull, 'w'))
 
-
     for marker in (marker for marker in markers if marker.file == absolute_path):
         exps = [expanded_macro for expanded_macro in proc.expanded_macros if expanded_macro.file == marker.file and expanded_macro.line == marker.line]
 
         if len(exps) == 0:
             raise Exception(" {}:({}) No registered macro found for code marker.".format(marker.file, marker.line))
-        elif len(exps) > 1:
+        elif len(set(exp.name for exp in exps)) > 1:
             raise Exception(" {}:({}) Multiple registered macro found for code marker.".format(marker.file, marker.line))
 
     return proc.expanded_macros

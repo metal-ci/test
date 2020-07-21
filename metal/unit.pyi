@@ -25,6 +25,7 @@ class Scope:
     cancelled: bool
     parent: Optional[Scope]
     name: str
+    description: Optional[str]
 
     def append_test(self, param: dict): ...
 

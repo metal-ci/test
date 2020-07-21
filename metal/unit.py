@@ -24,6 +24,7 @@ class Scope:
         self.cancelled = False
         self.parent = None
         self.name = name
+        self.description = None
 
     def __iadd__(self, rhs):
         self.executed += rhs.executed
@@ -46,7 +47,7 @@ class Scope:
             self.tests.append(data)
 
     def to_dict(self):
-        return {
+        res = {
             "summary": {
                 "executed": self.executed,
                 "warnings": self.warnings,
@@ -56,6 +57,9 @@ class Scope:
             "children": [ch.to_dict() for ch in self.children],
             "tests":    self.tests
         }
+        if self.description:
+            res["description"] = self.description
+        return res
 
 
 class MainScope(Scope):
@@ -131,14 +135,18 @@ class Reporter:
 
         self.current_scope.append_test(data)
 
-    def call(self, file, line, control, condition, function):
+    def call(self, file, line, control, condition, function, description=None):
         if control == 'enter':
             scp = Scope(function if function else "**unknown**")
             scp.parent = self.current_scope
+            if description:
+                scp.description = description
+
             self.__scope_stack.append(scp)
-            self.hrf_sink.write("{} entering test case {}\n"
+            self.hrf_sink.write("{} entering test case {}{}\n"
                                 .format(loc_str(file, line),
-                                        (function if function else "")))
+                                        (function if function else ""),
+                                        (" " + description) if description else ""))
 
         elif control == 'exit':
             sc = self.current_scope
@@ -231,7 +239,7 @@ class Reporter:
         self.current_scope.append_test({"type": "close", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val, "tolerance": tolerance, "tolerance_val": tolerance_val})
 
     def predicate(self, file, line, level, condition, function, args, function_val=None, args_val=None):
-        if self.hrf_sink and function and args:
+        if self.hrf_sink and function_val and args_val:
             self.hrf_sink.write("{} [predicate]: {}({}): [{}({})]\n".format(message_str(file, line, level, condition), function, ', '.join(args),  function_val, ', '.join(args_val)))
         elif self.hrf_sink:
             self.hrf_sink.write("{} [predicate]: {}({})\n".format(message_str(file, line, level, condition), function, ', '.join(args)))

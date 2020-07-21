@@ -17,7 +17,7 @@ class Init(MacroHook):
         super().__init__()
 
     def invoke(self, engine: 'Engine', macro_expansion: 'MacroExpansion'):
-        pass
+        raise Exception('METAL_SERIAL_INIT must only be used once')
 
 class Exit(MacroHook):
     identifier = 'METAL_SERIAL_EXIT'

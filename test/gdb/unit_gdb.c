@@ -193,5 +193,5 @@ int main(int argc, char * argv[])
     METAL_CALL(for_case);
 
     METAL_REPORT();
-    return METAL_ERROR();
+    return 0;
 }

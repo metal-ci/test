@@ -51,7 +51,6 @@ class Engine:
         except StopIteration:
             self.macro_hooks.append(Exit)
 
-
         self.input = input
         self.output = output
         self.serial_info = serial_info
@@ -168,6 +167,7 @@ class Engine:
         while exit_code_hook.running:
             next_marker = self.find_marker(self.read_location())
             macro_expansion = self.find_macro_expansion(next_marker)
+
             try:
                 hook = next((hook for hook in hooks if hook.identifier == macro_expansion.name))
                 hook.invoke(self, macro_expansion)

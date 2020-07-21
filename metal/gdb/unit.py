@@ -66,7 +66,7 @@ class SelectJsonSink(gdb.Parameter):
             self.sink = sys.stderr
         else:
             self.sink = open(self.value, 'w')
-        print(self.value, self.sink)
+
         self.reporter.json_sink = self.sink
         return self.value
 
@@ -189,14 +189,14 @@ class UnitBreakpoint(metal.gdb.Breakpoint):
             elif fr.type == "critical":
                 func(fr.file, fr. line, fr.level)
             elif fr.type  == "call":
-                func(fr.file, fr. line, fr.level, fr.condition, fr.str_arg(0))
+                func(fr.file, fr. line, fr.level, fr.condition, fr.str_arg(0), fr.str_arg(1))
             elif fr.type == 'loop':
                 func(fr.file, fr. line, fr.level)
             elif fr.type == 'ranged':
                 func(fr.file, fr. line, fr.level, fr.cond_or_length, [fr.get_arg(i) for i in range(4)], [fr.str_arg(i) for i in range(4)])
             elif fr.type == 'predicate':
-                args = fr.print_arg(1)
-                args_a = str(args).split(',') if args else None
+                args = fr.get_arg(1)[1:-1]
+                args_a = [ arg.strip() for arg in args.split(',')] if args else None
                 args_v = [str(fr.print_from_parent_frame(arg)) for arg in args_a] if args_a else None
                 func(fr.file, fr. line, fr.level, fr.cond_or_length, fr.get_arg(0), args_a, fr.str_arg(0), args_v)
             else:
