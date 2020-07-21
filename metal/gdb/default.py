@@ -13,3 +13,9 @@ timeout.connect_events()
 
 newlib_breakpoints = NewlibBreakpoints()
 argv = ArgvBreakpoint()
+
+from metal.gdb.unit import UnitBreakpoint
+from metal.unit import Reporter
+
+rep = Reporter()
+unit = UnitBreakpoint(rep)

@@ -190,6 +190,8 @@ int main(int argc, char * argv[])
     METAL_CALL(le_case);
     METAL_CALL(messaging_case);
     METAL_CALL(not_equal_case);
+    METAL_CALL(for_case);
 
+    METAL_REPORT();
     return METAL_ERROR();
 }

@@ -22,6 +22,8 @@ enum metal_unit_level
 {
     metal_unit_level_cancel,
     metal_unit_level_info,
+    metal_unit_level_enter,
+    metal_unit_level_exit,
     metal_unit_level_assert,
     metal_unit_level_expect
 };
@@ -31,13 +33,10 @@ enum metal_unit_type
     metal_unit_type_plain,
     metal_unit_type_critical,
     metal_unit_type_critical_section,
-    metal_unit_type_for,
-    metal_unit_type_ranged_enter,
-    metal_unit_type_ranged_exit,
+    metal_unit_type_loop,
     metal_unit_type_ranged,
     metal_unit_type_message,
-    metal_unit_type_call_enter,
-    metal_unit_type_call_exit,
+    metal_unit_type_call,
     metal_unit_type_log,
     metal_unit_type_checkpoint,
     metal_unit_type_equal,
@@ -48,7 +47,8 @@ enum metal_unit_type
     metal_unit_type_ge,
     metal_unit_type_le,
     metal_unit_type_greater,
-    metal_unit_type_lesser
+    metal_unit_type_lesser,
+    metal_unit_type_report
 };
 
 
@@ -75,16 +75,16 @@ METAL_TEST_REPORT(critical, cancel, 0);
 METAL_TEST_REPORT(critical, cancel, 1, __FUNCTION__);
 METAL_TEST_REPORT(for, cancel, 0, for);
 
-METAL_TEST_REPORT(ranged_enter, info, size, Lhs, LhsSize, Rhs, RhsSize);
-METAL_TEST_REPORT(ranged_exit, info, i, Lhs, LhsSize, Rhs, RhsSize);
+METAL_TEST_REPORT(ranged, enter, size, Lhs, LhsSize, Rhs, RhsSize);
+METAL_TEST_REPORT(ranged, exit,  i, Lhs, LhsSize, Rhs, RhsSize);
 METAL_TEST_REPORT(ranged, cancel, 0);
 
 METAL_TEST_REPORT(message, assert, Condition, Message);
 METAL_TEST_REPORT(message, expect, Condition, Message);
 
-METAL_TEST_REPORT(call_enter, info, 1, Function);
-METAL_TEST_REPORT(call_enter, info, 1, Function, description)
-METAL_TEST_REPORT(call_exit,  info, 1, Function);
+METAL_TEST_REPORT(call, enter, 1, Function);
+METAL_TEST_REPORT(call, enter, 1, Function, description)
+METAL_TEST_REPORT(call, exit,  1, Function);
 
 
 METAL_TEST_REPORT(log, info, 1, Message)

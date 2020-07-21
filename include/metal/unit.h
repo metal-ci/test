@@ -33,7 +33,7 @@ const static void * metal_error_label = 0;
     const void * metal_error_label = && METAL_PP_CONCAT(metal_error_label, __LINE__); \
     goto METAL_PP_CONCAT(metal_section_label, __LINE__); \
     METAL_PP_CONCAT(metal_error_label, __LINE__): \
-    METAL_TEST_REPORT(critical_section, cancel  0, __FUNCTION__); \
+    METAL_TEST_REPORT(critical, cancel  0, __FUNCTION__); \
     return Result ; \
     METAL_PP_CONCAT(metal_section_label, __LINE__): \
 
@@ -42,7 +42,7 @@ const static void * metal_error_label = 0;
     {const void * metal_error_label = && METAL_PP_CONCAT(metal_error_label, __LINE__); \
      goto METAL_PP_CONCAT(metal_section_label, __LINE__); \
      METAL_PP_CONCAT(metal_error_label, __LINE__): \
-     METAL_TEST_REPORT(critical_section, cancel, 0); \
+     METAL_TEST_REPORT(critical, cancel, 0); \
      return Result ; \
      METAL_PP_CONCAT(metal_section_label, __LINE__): \
      Assertion; }
@@ -65,7 +65,7 @@ const static void * metal_error_label = 0;
     const void * metal_error_label = && METAL_PP_CONCAT(metal_error_label, __LINE__); \
     goto METAL_PP_CONCAT(metal_for_label_, __LINE__); \
     METAL_PP_CONCAT(metal_error_label, __LINE__): \
-    METAL_TEST_REPORT(for, cancel, 0); \
+    METAL_TEST_REPORT(loop, cancel, 0, __FUNCTION__); \
     metal_error_label = outer_error_label ; \
     METAL_PP_CONCAT(metal_for_label_, __LINE__): \
     for (; metal_error_label ==  && METAL_PP_CONCAT(metal_error_label, __LINE__); metal_error_label = metal_error_label) \
@@ -89,7 +89,7 @@ const static void * metal_error_label = 0;
     int status = 1;                                             \
     int i = 0;                                                  \
     const size_t size = LhsSize > RhsSize ? RhsSize : LhsSize;  \
-    METAL_TEST_REPORT(ranged_enter, info, size, Lhs, LhsSize, Rhs, RhsSize); \
+    METAL_TEST_REPORT(ranged, enter, size, Lhs, LhsSize, Rhs, RhsSize); \
                                                                 \
     const void * outer_error_label = metal_error_label;         \
     goto METAL_PP_CONCAT(metal_section_label, __LINE__);        \
@@ -106,23 +106,25 @@ const static void * metal_error_label = 0;
             METAL_PP_OVERLOAD(METAL_RANGED_INVOKE_, MACRO)(Lhs[i], Rhs[i], MACRO); \
                                                                                    \
 METAL_PP_CONCAT(metal_range_end_label, __LINE__) :                                 \
-    METAL_TEST_REPORT(ranged_exit, info, i, Lhs, LhsSize, Rhs, RhsSize);           \
+    METAL_TEST_REPORT(ranged, exit, i, Lhs, LhsSize, Rhs, RhsSize);           \
 }
 
 metal_bool __attribute__((weak)) metal_test_errored = 1;
 #define METAL_ERROR() +metal_test_errored
 
-#define METAL_ASSERT_IMPL(Condition) { metal_test_errored |= Condition;  if (Condition && metal_error_label) goto *metal_error_label;}
-#define METAL_EXPECT_IMPL(Condition) { if (Condition && metal_error_label) goto *metal_error_label; }
+#define METAL_REPORT()  METAL_TEST_REPORT(report, info, metal_test_errored > 0)
 
-#define METAL_ASSERT(Condition) { int cond = Condition ? 1 : 0; METAL_TEST_REPORT(plain, assert, cond); METAL_ASSERT_IMPL(cond); }
-#define METAL_EXPECT(Condition) { int cond = Condition ? 1 : 0; METAL_TEST_REPORT(plain, expect, cond); METAL_EXPECT_IMPL(cond); }
+#define METAL_ASSERT_IMPL(Condition) { metal_test_errored |= Condition;  if (!Condition && metal_error_label) goto *metal_error_label;}
+#define METAL_EXPECT_IMPL(Condition) { if (!Condition && metal_error_label) goto *metal_error_label; }
+
+#define METAL_ASSERT(Condition) { int cond = Condition ? 1 : 0; METAL_TEST_REPORT(plain, assert, cond, #Condition); METAL_ASSERT_IMPL(cond); }
+#define METAL_EXPECT(Condition) { int cond = Condition ? 1 : 0; METAL_TEST_REPORT(plain, expect, cond, #Condition); METAL_EXPECT_IMPL(cond); }
 
 #define METAL_ASSERT_MESSAGE(Condition, Message) { int cond = Condition ? 1 : 0;  METAL_TEST_REPORT(message, assert, Condition, Message); METAL_ASSERT_IMPL(cond); }
 #define METAL_EXPECT_MESSAGE(Condition, Message) { int cond = Condition ? 1 : 0;  METAL_TEST_REPORT(message, expect, Condition, Message); METAL_EXPECT_IMPL(cond); }
 
-#define METAL_CALL_1(Function)              {                                        METAL_TEST_REPORT(call_enter, info, 1, Function); Function();              METAL_TEST_REPORT(call_exit, info, METAL_ERROR(), Function); }
-#define METAL_CALL_2(Function, Description) { const char *description = Description; METAL_TEST_REPORT(call_enter, info, 1, Function, description); Function(); METAL_TEST_REPORT(call_exit, info, METAL_ERROR(), Function); }
+#define METAL_CALL_1(Function)              {                                        METAL_TEST_REPORT(call, enter, 1, Function); Function();              METAL_TEST_REPORT(call, exit, METAL_ERROR(), Function); }
+#define METAL_CALL_2(Function, Description) { const char *description = Description; METAL_TEST_REPORT(call, enter, 1, Function, description); Function(); METAL_TEST_REPORT(call, exit, METAL_ERROR(), Function); }
 #define METAL_CALL(...) METAL_PP_OVERLOAD(METAL_CALL_, __VA_ARGS__)(__VA_ARGS__)
 
 #define METAL_LOG(Message) METAL_TEST_REPORT(log, info, 1, Message)
