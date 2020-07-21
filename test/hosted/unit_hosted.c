@@ -6,21 +6,7 @@
  */
 
 
-#include <metal/macros.h>
-#include <stdio.h>
-#define METAL_TEST_REPORT_IMPL_1(Type, Level, Condition)                         TEST_PRINT(Type, Level, Condition, __FILE__, __LINE__)
-#define METAL_TEST_REPORT_IMPL_2(Type, Level, Condition, Arg0)                   TEST_PRINT(Type, Level, Condition, __FILE__, __LINE__, #Arg0)
-#define METAL_TEST_REPORT_IMPL_3(Type, Level, Condition, Arg0, Arg1)             TEST_PRINT(Type, Level, Condition, __FILE__, __LINE__, #Arg0,      #Arg1)
-#define METAL_TEST_REPORT_IMPL_4(Type, Level, Condition, Arg0, Arg1, Arg2)       TEST_PRINT(Type, Level, Condition, __FILE__, __LINE__, #Arg0,      #Arg1,      #Arg2)
-#define METAL_TEST_REPORT_IMPL_5(Type, Level, Condition, Arg0, Arg1, Arg2, Arg3) TEST_PRINT(Type, Level, Condition, __FILE__, __LINE__, #Arg0,      #Arg1,      #Arg2,      #Arg3)
-
-#define METAL_TEST_REPORT(Type, Level, Condition, ...) \
-    printf(__FILE__ "(" METAL_PP_STRINGIFY(__LINE__) "): " METAL_PP_STRINGIFY(Type) " > " METAL_PP_STRINGIFY(Level) " : %d, with " #__VA_ARGS__ "\n", Condition);
-
-
-#include <metal/unit.h>
-
-
+#include <metal/hosted/unit.h>
 
 #define true 1
 #define false 0
@@ -205,5 +191,6 @@ int main(int argc, char * argv[])
     METAL_CALL(messaging_case);
     METAL_CALL(not_equal_case);
 
+    METAL_REPORT();
     return METAL_ERROR();
 }

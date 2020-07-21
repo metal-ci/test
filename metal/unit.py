@@ -126,10 +126,10 @@ class Reporter:
                 lhs_v, lhs_len_v, rhs_v, rhs_len_v = range_info_values
                 data['range_info_values'] = {'lhs': lhs_v, 'lhs_len': lhs_len_v, 'rhs': rhs_v, 'rhs_len': rhs_len_v}
                 self.hrf_sink.write("{} ranged test starting with {} elements for {}[0 ... {}] and {}[0 ... {}]: [{}[0 ... {}], {}[0 ... {}]]\n"
-                                    .format(loc_str(file, line), condition_or_length, lhs, lhs_len, rhs, rhs_len_v, lhs_v, lhs_len_v, rhs_v, rhs_len_v))
+                                    .format(loc_str(file, line), condition_or_length, lhs, lhs_len, rhs, rhs_len, lhs_v, lhs_len_v, rhs_v, rhs_len_v))
             else:
-                self.hrf_sink.write("{} ranged test starting with {} elements for {}[...{}]\n"
-                                    .format(loc_str(file, line), condition_or_length, lhs, lhs_len, rhs))
+                self.hrf_sink.write("{} ranged test starting with {} elements for {}[0 ... {}] and {}[0 ... {}]\n"
+                                    .format(loc_str(file, line), condition_or_length, lhs, lhs_len, rhs, rhs_len))
         else:
             raise Exception("Unknown control {}".format(control))
 
@@ -141,19 +141,15 @@ class Reporter:
             scp.parent = self.current_scope
             if description:
                 scp.description = description
-
             self.__scope_stack.append(scp)
-            self.hrf_sink.write("{} entering test case {}{}\n"
-                                .format(loc_str(file, line),
-                                        (function if function else ""),
-                                        (" " + description) if description else ""))
-
+            self.hrf_sink.write("{} entering test case {}\n"
+                                .format(loc_str(file, line), (" " + description) if description else function))
         elif control == 'exit':
             sc = self.current_scope
             self.hrf_sink.write("{} {} test case {}, {} with : {{executed: {}, warnings: {}, errors: {}}}\n"
                                 .format(loc_str(file, line),
                                         'cancelling' if sc.cancelled else 'exiting',
-                                        (function if function else ""),
+                                        (" " + description) if description else function,
                                         ("succeeded " if condition == 0 else "failed "),
                                         sc.executed, sc.warnings, sc.errors))
 
@@ -177,65 +173,82 @@ class Reporter:
             self.hrf_sink.write("{} message: {}\n".format(message_str(file, line, level, condition), message))
         self.current_scope.append_test({"type": "message", "file": file, "line": line, "message": message, "level": level, "condition": condition})
 
-    def plain  (self, file, line, level, condition, description):
-        if self.hrf_sink:
+    def plain  (self, file, line, level, condition, description, value):
+        if self.hrf_sink and value:
+            self.hrf_sink.write("{} [plain]: {}: [{}]\n".format(message_str(file, line, level, condition), description, value))
+        elif self.hrf_sink:
             self.hrf_sink.write("{} [plain]: {}\n".format(message_str(file, line, level, condition), description))
         self.current_scope.append_test({"type": "plain", "file": file, "line": line, "description": description, "level": level, "condition": condition})
 
     def equal(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} == {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [equal]: {} == {}: [{} == {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [equal]: {}: [{} == {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [equal]: {} == {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [equal]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "equal", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def not_equal(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} != {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [not_equal]: {} != {}: [{} != {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [not_equal]: {}: [{} != {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [not_equal]: {} != {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [not_equal]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "not_equal", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def ge(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} >= {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [ge]: {} >= {}: [{} >= {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [ge]: {}: [{} >= {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [ge]: {} >= {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [ge]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "ge", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def le(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} <= {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [le]: {} <= {}: [{} <= {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [le]: {}: [{} <= {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [le]: {} <= {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [le]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "le", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def greater(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} > {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [greater]: {} > {}: [{} > {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [greater]: {}: [{} > {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [greater]: {} > {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [greater]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "greater", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def lesser(self, file, line, level, condition, lhs, rhs, lhs_val=None, rhs_val=None):
+        ex = '{} < {}'.format(lhs, rhs) if rhs else lhs
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [lesser]: {} < {}: [{} < {}]\n".format(message_str(file, line, level, condition), lhs, rhs, lhs_val, rhs_val))
+            self.hrf_sink.write("{} [lesser]: {}: [{} < {}]\n".format(message_str(file, line, level, condition), ex, lhs_val, rhs_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [lesser]: {} > {}\n".format(message_str(file, line, level, condition), lhs, rhs))
+            self.hrf_sink.write("{} [lesser]: {}\n".format(message_str(file, line, level, condition), ex))
         self.current_scope.append_test({"type": "lesser", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val})
 
     def close(self, file, line, level, condition, lhs, rhs, tolerance, lhs_val=None, rhs_val=None, tolerance_val=None):
+        expression = lhs
+        if rhs and tolerance:
+            expression = '{} = {}  +- ~ {}'.format(lhs, rhs, tolerance)
+
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [close]: {} = {}  +/- {}: [{} = {}  +/- {}]\n".format(message_str(file, line, level, condition), lhs, rhs, tolerance, lhs_val, rhs_val, tolerance_val))
+            self.hrf_sink.write("{} [close]: {}: [{} = {}  +- {}]\n".format(message_str(file, line, level, condition), expression, lhs_val, rhs_val, tolerance_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [close]: {} = {} +/- {}\n".format(message_str(file, line, level, condition), lhs, rhs, tolerance))
+            self.hrf_sink.write("{} [close]: {}\n".format(message_str(file, line, level, condition), expression))
         self.current_scope.append_test({"type": "close", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val, "tolerance": tolerance, "tolerance_val": tolerance_val})
 
     def close_relative(self, file, line, level, condition, lhs, rhs, tolerance, lhs_val=None, rhs_val=None, tolerance_val=None):
+
+        expression = lhs
+        if rhs and tolerance:
+            expression = '{} = {}  +- ~ {}'.format(lhs, rhs, tolerance)
+
         if self.hrf_sink and lhs_val and rhs_val:
-            self.hrf_sink.write("{} [close_relative]: {} = {}  ~ {}: [{} = {} ~ {}]\n".format(message_str(file, line, level, condition), lhs, rhs, tolerance, lhs_val, rhs_val, tolerance_val))
+            self.hrf_sink.write("{} [close_relative]: {}: [{} = {} +- ~ {}]\n".format(message_str(file, line, level, condition), expression, lhs_val, rhs_val, tolerance_val))
         elif self.hrf_sink:
-            self.hrf_sink.write("{} [close_relative]: {} = {} ~ {}\n".format(message_str(file, line, level, condition), lhs, rhs, tolerance))
+            self.hrf_sink.write("{} [close_relative]: {}\n".format(message_str(file, line, level, condition), expression))
         self.current_scope.append_test({"type": "close", "file": file, "line": line, "lhs" : lhs, "rhs": rhs, "level": level, "condition": condition, "lhs_val" : lhs_val, "rhs_val": rhs_val, "tolerance": tolerance, "tolerance_val": tolerance_val})
 
     def predicate(self, file, line, level, condition, function, args, function_val=None, args_val=None):

@@ -15,6 +15,7 @@ target_compile_definitions(newlib_full PUBLIC -DMETAL_SERIAL_SYSCALLS_MODE=METAL
 add_executable(argv_serial argv.c)
 
 add_executable(unit_serial unit.c)
+add_executable(catch_serial catch_serial.cpp)
 #set_target_properties(unit_serial PROPERTIES COMPILE_FLAGS "-g -ggdb -Og -fno-stack-protector")
 
 add_test(NAME read_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/read_test_runner.py
@@ -46,6 +47,10 @@ add_test(NAME unit_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}
         $<TARGET_FILE:unit_serial> --include=${PROJECT_SOURCE_DIR}/include
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
+
+add_test(NAME catch_test COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/catch_runner.py
+        $<TARGET_FILE:catch_serial> --include=${PROJECT_SOURCE_DIR}/include
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
 #set_target_properties(serial_compile_test_c   PROPERTIES COMPILE_FLAGS "-g -gdwarf-4 -Og -fno-omit-frame-pointer")
 #set_target_properties(serial_compile_test_cpp PROPERTIES COMPILE_FLAGS "-g -gdwarf-4 -Og -fno-omit-frame-pointer")

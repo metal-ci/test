@@ -8,6 +8,11 @@
 #ifndef METAL_MISCL_MACROS_H
 #define METAL_MISCL_MACROS_H
 
+#if __cplusplus >= 201103L
+#define METAL_NULL nullptr
+#else
+#define METAL_NULL 0
+#endif
 
 #define METAL_PP_CONCAT_IMPL(x, y) x##y
 #define METAL_PP_CONCAT(x, y) METAL_PP_CONCAT_IMPL( x, y )
@@ -184,5 +189,10 @@
 #define METAL_PP_FOR_EACH_STEP_127(Macro, Arg, ...) Macro ( Arg ) METAL_PP_FOR_EACH_STEP_126(Macro, __VA_ARGS__)
 
 #define METAL_PP_FOR_EACH(Macro, ...)   METAL_PP_OVERLOAD(METAL_PP_FOR_EACH_STEP_, __VA_ARGS__) (Macro, __VA_ARGS__)
+
+#define METAL_PP_UNIQUE_NAME_LINE2( name, line ) name##line
+#define METAL_PP_UNIQUE_NAME_LINE( name, line ) METAL_PP_UNIQUE_NAME_LINE2( name, line )
+#define METAL_PP_UNIQUE_NAME( name ) METAL_PP_UNIQUE_NAME_LINE( name, __COUNTER__ )
+
 
 #endif

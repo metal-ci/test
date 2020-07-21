@@ -10,13 +10,7 @@
 
 #include <metal/macros.h>
 #include <metal/gdb/core.h>
-#include <metal/unit.h>
 
-#if __cplusplus >= 201103L
-#define METAL_NULL nullptr
-#else
-#define METAL_NULL 0
-#endif
 
 enum metal_unit_level
 {
@@ -67,6 +61,8 @@ static void metal_gdb_unit_impl(enum metal_unit_type type, enum metal_unit_level
 
 #define METAL_TEST_REPORT(Type, Level, ...) \
     METAL_PP_OVERLOAD(METAL_TEST_REPORT_IMPL_, __VA_ARGS__)(METAL_PP_CONCAT(metal_unit_type_,  Type), METAL_PP_CONCAT(metal_unit_level_, Level), __VA_ARGS__)
+
+#include <metal/unit.h>
 
 /*
 

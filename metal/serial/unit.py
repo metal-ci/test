@@ -1,4 +1,5 @@
 import typing
+import re
 
 from metal.serial import MacroHook, Engine
 from metal.serial.preprocessor import MacroExpansion
@@ -15,7 +16,6 @@ class Unit(MacroHook):
     exit_code: typing.Optional[int]
 
     def invoke(self, engine: Engine, macro_expansion: MacroExpansion):
-        
         file = macro_expansion.file
         line = macro_expansion.line
         
@@ -46,7 +46,8 @@ class Unit(MacroHook):
         elif type_ == "critical":
             func(file, line, level)
         elif type_  == "call":
-            func(file, line, level, condition, args[0])
+            name = args[1][3:-8] if args[1] else args[0]
+            func(file, line, level, condition, name)
         elif type_ == 'loop':
             func(file, line, level)
         elif type_ == 'ranged':

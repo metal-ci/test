@@ -149,7 +149,10 @@ class FrameHelper:
     def str_arg(self, idx):
         arg = self.get_arg(idx)
         if arg is not None:
-            return str(self.print_from_parent_frame(arg))
+            try:
+                return str(self.print_from_parent_frame(arg))
+            except:
+                return None
 
     @property
     def length(self): return int(self.cond_or_length)
@@ -176,12 +179,40 @@ class UnitBreakpoint(metal.gdb.Breakpoint):
                 func(fr.file, fr. line)
             elif fr.type == "log":
                 func(fr.file, fr. line, fr.str_arg(0))
-            elif fr.type in ["message", "plain"]:
+            elif fr.type == "message":
                 func(fr.file, fr. line, fr.level, fr.condition, fr.str_arg(0))
+            elif fr.type == "plain":
+                try:
+                    decomp_type = fr.print_from_parent_frame('decomposition').type
+                    if str(decomp_type).startswith('metal::unit::unary_expression'):
+                        val = None
+                        dec_val = fr.print_from_parent_frame('decomposition.value')
+                        if dec_val.type.code == gdb.TYPE_CODE_REF:
+                            val = str(dec_val.referenced_value())
+                        else:
+                            val = str(dec_val)
+
+                        func(fr.file, fr. line, fr.level, fr.condition, fr.get_arg(0), val)
+                    elif str(decomp_type).startswith('metal::unit::ternary_expression'):
+
+                        relative = bool(decomp_type.template_argument(3))
+                        lhs, rhs, tolerance = [str(fr.print_from_parent_frame('decomposition.' + val).referenced_value()) for val in ['lhs', 'rhs', 'tolerance']]
+                        if relative:
+                            self.reporter.close_relative(fr.file, fr.line, fr.level, fr.condition, fr.get_arg(0), None, None, lhs, rhs, tolerance)
+                        else:
+                            self.reporter.close(fr.file, fr.line, fr.level, fr.condition, fr.get_arg(0), None, None, lhs, rhs, tolerance)
+                    elif str(decomp_type).startswith('metal::unit::binary_expression'):
+                        tp = decomp_type.template_argument(2)
+                        lhs, rhs = [str(fr.print_from_parent_frame('decomposition.' + val).referenced_value()) for val in ['lhs', 'rhs']]
+                        assert str(tp).startswith('metal::unit::expression_type::')
+                        tp_ = str(tp)[len('metal::unit::expression_type::'):]
+                        func_ = getattr(self.reporter, str(tp)[len('metal::unit::expression_type::'):])
+
+                        func_(fr.file, fr. line, fr.level, fr.condition, fr.get_arg(0), None, lhs, rhs)
+                except gdb.GdbError:
+                    func(fr.file, fr. line, fr.level, fr.condition, fr.str_arg(0))
             elif fr.type in ["equal",  "not_equal",  "ge",  "le",  "greater",  "lesser"]:
                 func(fr.file, fr. line, fr.level, fr.condition, fr.get_arg(0), fr.get_arg(1), fr.str_arg(0), fr.str_arg(1))
-            elif fr.type in ["close", "close_relative"]:
-                func(fr.file, fr. line, fr.level, fr.condition, fr.get_arg(0), fr.get_arg(1), fr.get_arg(2), fr.str_arg(0), fr.str_arg(1), fr.str_arg(2))
             elif fr.type in ["close", "close_relative"]:
                 func(fr.file, fr. line, fr.level, fr.condition, fr.get_arg(0), fr.get_arg(1), fr.get_arg(2), fr.str_arg(0), fr.str_arg(1), fr.str_arg(2))
             elif fr.type == "report":

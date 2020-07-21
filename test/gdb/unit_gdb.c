@@ -63,7 +63,7 @@ void close_case()
     METAL_EXPECT_CLOSE(1., .9, .09);
 
 
-    METAL_ASSERT_CLOSE_RELATIVE(2., 1.8, 0.1);
+    METAL_ASSERT_CLOSE_RELATIVE(2., 1.8, 0.2);
     METAL_EXPECT_CLOSE_RELATIVE(2., 1.5, 0.25);
 
     int a1[3] = {1,2,3};
