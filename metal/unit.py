@@ -173,7 +173,7 @@ class Reporter:
             self.hrf_sink.write("{} message: {}\n".format(message_str(file, line, level, condition), message))
         self.current_scope.append_test({"type": "message", "file": file, "line": line, "message": message, "level": level, "condition": condition})
 
-    def plain  (self, file, line, level, condition, description, value):
+    def plain  (self, file, line, level, condition, description, value=None):
         if self.hrf_sink and value:
             self.hrf_sink.write("{} [plain]: {}: [{}]\n".format(message_str(file, line, level, condition), description, value))
         elif self.hrf_sink:
