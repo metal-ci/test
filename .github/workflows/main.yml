@@ -19,8 +19,10 @@ jobs:
     steps:
     - name: Install gdb
       run: sudo apt-get install gdb
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    - name: Pip install
+      run: pip install -r requirement.txt
     - name: run-cmake
       uses: ashutoshvarma/action-cmake-build@master
       with:
