@@ -2,3 +2,5 @@ argparse~=1.4.0
 pcpp~=1.21
 pyelftools~=0.26
 cxxfilt~=0.2.1
+twine~=3.1.1
+setuptools~=39.0.1

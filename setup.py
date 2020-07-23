@@ -8,9 +8,9 @@ setup(
     description='A C/C++ toolset for bare metal & embedded developments',
     author='Klemens Morgenstern',
     url='http://pypi.python.org/pypi/metal_test',
-    packages=['metal-test'],
+    packages=['metal'],
     entry_points={
-        'console_scripts': [ 'metal-serial-generate=metal:serial:generate', 'metal-serial-interpret=metal:serial:interpret' ]
+        'console_scripts': [ 'metal-serial-generate=metal.serial.generate', 'metal-serial-interpret=metal.serial.interpret' ]
     },
     license='APACHE',
     classifiers=[
