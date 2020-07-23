@@ -10,7 +10,8 @@ setup(
     url='http://pypi.python.org/pypi/metal_test',
     packages=['metal'],
     entry_points={
-        'console_scripts': [ 'metal-serial-generate=metal.serial.generate', 'metal-serial-interpret=metal.serial.interpret' ]
+        'console_scripts': ['metal-serial-generate=metal.serial:generate', 'metal-serial-interpret=metal.serial:interpret',
+                            'metal-flags:metal:flags']
     },
     license='APACHE',
     classifiers=[
