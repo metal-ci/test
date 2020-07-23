@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='metal-test',
-    version='0.1',
+    version='0.1.1',
     description='A C/C++ toolset for bare metal & embedded developments',
     author='Klemens Morgenstern',
     url='http://pypi.python.org/pypi/metal_test',
