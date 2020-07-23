@@ -22,7 +22,7 @@ jobs:
        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - name: Pip install
-      run: pip install -r requirement.txt
+      run: pip install -r requirements.txt
     - name: run-cmake
       uses: ashutoshvarma/action-cmake-build@master
       with:
