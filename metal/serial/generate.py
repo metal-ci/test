@@ -49,8 +49,7 @@ def generate(binary: str, defines: List[str] = [], paths: List[str] = [], macros
     return SerialInfo(elf_reader.symbols, next(sym for sym in elf_reader.symbols if sym.name == 'metal_serial_write'),expansions, elf_reader.get_markers())
 
 
-if __name__ == '__main__':
-
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('binary',                     help='The binary that runs on target')
@@ -70,4 +69,5 @@ if __name__ == '__main__':
         print(res)
 
 
-
+if __name__ == '__main__':
+    main()

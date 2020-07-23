@@ -5,7 +5,7 @@ import sys
 from metal.serial import Engine
 from metal.serial.generate import SerialInfo
 
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-s', '--serial-info',  required=True, help='The serial information perviously generated')
@@ -18,3 +18,6 @@ if __name__ == '__main__':
 
     engine = Engine(input=open(args.input, 'rb') if args.input else sys.stdin,
                     output=open(args.output, 'wb') if args.output else None, serial_info=serial_info)
+
+if __name__ == '__main__':
+    main()

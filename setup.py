@@ -9,9 +9,11 @@ setup(
     author='Klemens Morgenstern',
     url='http://pypi.python.org/pypi/metal_test',
     packages=['metal'],
+    install_requires=['argparse', 'pcpp', 'pyelftools', 'cxxfilt'],
     entry_points={
-        'console_scripts': ['metal-serial-generate=metal.serial:generate', 'metal-serial-interpret=metal.serial:interpret',
-                            'metal-flags:metal:flags']
+        'console_scripts': ['metal-serial-generate=metal.serial.generate.main',
+                            'metal-serial-interpret=metal.serial.interpret.main',
+                            'metal-flags:metal.flags.print_flags']
     },
     license='APACHE',
     classifiers=[
