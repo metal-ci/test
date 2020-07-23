@@ -1,0 +1,4 @@
+include requirements.txt
+recursive-include metal *.py
+recursive-include src *.c *.cpp
+recursive-include include *.h *.hpp
