@@ -18,8 +18,8 @@ Both tools have separate chapters documentation that are recommended for study f
 
 Every of the components does bring minimal code examples for both tools, as well. 
 
- * [Exit code propagation](https://github.com/metal-ci/doc/exit-code.md) 
- * [Unit testing](https://github.com/metal-ci/doc/unit.md)
- * [Syscall stubs](https://github.com/metal-ci/doc/newlib.md)
- * [Argument assignment](https://github.com/metal-ci/doc/argv.md)
+ * [Exit code propagation](exit-code.md) 
+ * [Unit testing](unit.md)
+ * [Syscall stubs](newlib.md)
+ * [Argument assignment](argv.md)
 
