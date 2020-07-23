@@ -34,3 +34,4 @@
 cmake-*
 __pycache__
 .idea
+dist

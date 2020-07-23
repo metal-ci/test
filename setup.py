@@ -11,9 +11,9 @@ setup(
     packages=['metal'],
     install_requires=['argparse', 'pcpp', 'pyelftools', 'cxxfilt'],
     entry_points={
-        'console_scripts': ['metal-serial-generate=metal.serial.generate.main',
-                            'metal-serial-interpret=metal.serial.interpret.main',
-                            'metal-flags:metal.flags.print_flags']
+        'console_scripts': ['metal-serial-generate=metal.serial.generate:main',
+                            'metal-serial-interpret=metal.serial.interpret:main',
+                            'metal-flags=metal.flags:print_flags']
     },
     license='APACHE',
     classifiers=[
