@@ -12,7 +12,7 @@ def package_files(directory):
 
 setup(
     name='metal-test',
-    version='0.1.2',
+    version='0.2.0',
     description='A C/C++ toolset for bare metal & embedded developments',
     author='Klemens Morgenstern',
     author_email='klemens@metal.ci',
