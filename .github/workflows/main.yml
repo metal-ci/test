@@ -25,6 +25,7 @@ jobs:
       uses: ashutoshvarma/action-cmake-build@master
       with:
         build-type: Debug
+        run-test: true
 
 
 
