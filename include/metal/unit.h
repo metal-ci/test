@@ -26,7 +26,7 @@ typedef int metal_bool;
 #include <metal/hosted/unit.h>
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || __PCPP_ALWAYS_TRUE__
 
 const static void * metal_error_label = 0;
 
