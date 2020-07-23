@@ -15,8 +15,8 @@ setup(
     license='APACHE',
     classifiers=[
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Test Tools',
-        'License :: OSI Approved :: Apache License',
+        'Topic :: Software Development :: Embedded Systems',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python :: 3',
     ],
 )
