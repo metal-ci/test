@@ -26,9 +26,11 @@ typedef int metal_bool;
 #include <metal/hosted/unit.h>
 #endif
 
+#if defined(__GNUC__)
+
 const static void * metal_error_label = 0;
 
-#define METAL_ENTER_CRITICAL_SECTION() \
+#define METAL_ENTER_CRITICAL_SECTION(Result) \
     const void * metal_error_label = && METAL_PP_CONCAT(metal_error_label, __LINE__); \
     goto METAL_PP_CONCAT(metal_section_label, __LINE__); \
     METAL_PP_CONCAT(metal_error_label, __LINE__): \
@@ -108,13 +110,21 @@ METAL_PP_CONCAT(metal_range_end_label, __LINE__) :                              
     METAL_TEST_REPORT(ranged, exit, i, Lhs, LhsSize, Rhs, RhsSize);           \
 }
 
+#define METAL_ASSERT_IMPL(Condition) { metal_test_errored |= Condition;  if (!Condition && metal_error_label) goto *metal_error_label;}
+#define METAL_EXPECT_IMPL(Condition) { if (!Condition && metal_error_label) goto *metal_error_label; }
+
+#else
+
+#define METAL_ASSERT_IMPL(Condition) { metal_test_errored |= Condition; }
+#define METAL_EXPECT_IMPL(Condition)
+
+#endif
+
 metal_bool __attribute__((weak)) metal_test_errored = 1;
 #define METAL_ERROR() +metal_test_errored
 
 #define METAL_REPORT()  METAL_TEST_REPORT(report, info, metal_test_errored > 0)
 
-#define METAL_ASSERT_IMPL(Condition) { metal_test_errored |= Condition;  if (!Condition && metal_error_label) goto *metal_error_label;}
-#define METAL_EXPECT_IMPL(Condition) { if (!Condition && metal_error_label) goto *metal_error_label; }
 
 #if !defined(__cplusplus) || defined(METAL_TEST_DISABLE_DECOMPOSITION)
 

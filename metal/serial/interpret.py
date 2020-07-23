@@ -8,7 +8,7 @@ from metal.serial.generate import SerialInfo
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-s', '--serial-info',  required=True, help='The serial information perviously generated')
+    parser.add_argument('-S', '--serial-info',  required=True, help='The serial information perviously generated')
     parser.add_argument('-I', '--input',  help="The file for input data, defaults to stdin")
     parser.add_argument('-O', '--output', help="The output ,defaults to null.")
 

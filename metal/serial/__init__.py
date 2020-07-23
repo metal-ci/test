@@ -6,5 +6,5 @@ from .hooks import MacroHook
 from .engine import Engine
 from .interpret import SerialInfo
 from .read_symbols import Symbol, read_symbols
-
+from .preprocessor import MacroExpansion
 from .default_hooks import default_hooks

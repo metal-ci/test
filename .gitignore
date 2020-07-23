@@ -35,3 +35,4 @@ cmake-*
 __pycache__
 .idea
 dist
+metal_test.egg-info

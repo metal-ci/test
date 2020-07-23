@@ -53,7 +53,6 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('binary',                     help='The binary that runs on target')
-    parser.add_argument('-S', '--source-dir',  required=True, help='The root of the source directory')
     parser.add_argument('-I', '--include', nargs='+', help="Include folders for the preprocessor", default=[])
     parser.add_argument('-D', '--define',  nargs='+', help="Defines for the preprocessor", default=[])
     parser.add_argument('-O', '--output',             help='The file to write the generated data to')

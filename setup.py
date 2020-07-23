@@ -10,9 +10,14 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+
 setup(
     name='metal-test',
-    version='0.2.0',
+    version='0.2.2',
     description='A C/C++ toolset for bare metal & embedded developments',
     author='Klemens Morgenstern',
     author_email='klemens@metal.ci',
@@ -20,6 +25,8 @@ setup(
     packages=['metal', 'metal.gdb', 'metal.serial'],
     package_data={'metal': package_files('src') + package_files('include')},
     install_requires=['argparse', 'pcpp', 'pyelftools', 'cxxfilt'],
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     entry_points={
         'console_scripts': ['metal-serial-generate=metal.serial.generate:main',
                             'metal-serial-interpret=metal.serial.interpret:main',

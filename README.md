@@ -7,7 +7,7 @@ It does however limit some things to the itanium abi, i.e. gcc and clang.
 
 At the current state it provides functionality for:
  
- * [Exit code propagation](https://github.com/metal-ci/doc/exit-code.md) 
+ * [Exit code propagation](https://github.com/metal-ci/doc/readme.md) 
  * [Unit testing](https://github.com/metal-ci/doc/unit.md)
  * [Syscall stubs](https://github.com/metal-ci/doc/newlib.md)
  * [Argument assignment](https://github.com/metal-ci/doc/argv.md)
