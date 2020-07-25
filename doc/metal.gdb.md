@@ -1,7 +1,7 @@
 # metal.gdb
 
 *Study of the [Python API](https://sourceware.org/gdb/onlinedocs/gdb/Python-API.html) is highly recommended. 
-Note that this repository contains a [pyi file](../gdb.pyi) for this api, though versios might differ.*
+Note that this repository contains a [pyi file](../gdb.pyi) for this api, though versions might differ.*
 
 ## metal.Breakpoint
 
@@ -108,7 +108,7 @@ gdb my_executable --init-command test.gdbinit
 
 ## Parameters
 
-Configuration of provided plugins is provided through utilization of [`gdb.Paramter`](https://sourceware.org/gdb/onlinedocs/gdb/Parameters-In-Python.html#Parameters-In-Python)
+Configuration of provided plugins is provided through utilization of [`gdb.Parameter`](https://sourceware.org/gdb/onlinedocs/gdb/Parameters-In-Python.html#Parameters-In-Python)
 
 ```python
 import gdb
@@ -118,13 +118,13 @@ class MyParameter(gdb.Parameter):
         super(MyParameter, self).__init__("my-parameter", gdb.COMMAND_DATA, gdb.PARAM_UINTEGER)
 
 
-myParamter = MyParameter()
+myParameter = MyParameter()
 ```
 
 In the `gdbinit` you can then set the value:
 
 ```gdbinit
-set my-paramter 42
+set my-parameter 42
 ```
 
 
