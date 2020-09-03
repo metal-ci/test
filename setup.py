@@ -24,7 +24,7 @@ setup(
     url='http://pypi.python.org/pypi/metal_test',
     packages=['metal', 'metal.gdb', 'metal.serial'],
     package_data={'metal': package_files('src') + package_files('include')},
-    install_requires=['argparse', 'pcpp', 'pyelftools', 'cxxfilt'],
+    install_requires=['argparse', 'pcpp', 'pyelftools', 'itanium_demangler'],
     long_description=long_description,
     long_description_content_type='text/markdown',
     entry_points={
