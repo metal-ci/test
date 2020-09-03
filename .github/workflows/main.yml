@@ -20,6 +20,9 @@ jobs:
     steps:
     - name: Install gdb
       run: sudo apt-get install gdb
+      # Install python-setuptools system wide
+    - name: Install python-setuptools
+      run: sudo apt-get install python-setuptools
        # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - name: Pip install
