@@ -6,7 +6,11 @@ from elftools.dwarf.lineprogram import LineProgramEntry,  LineProgram
 from elftools.elf.elffile import ELFFile
 from elftools.elf.sections import SymbolTableSection
 
-import cxxfilt
+# Ignore SyntaxWarning for itanium_demangler
+import warnings
+warnings.filterwarnings("ignore",category=SyntaxWarning,module=r".*itanium_demangler")
+
+import itanium_demangler
 
 class Symbol:
     name: str
@@ -21,7 +25,7 @@ class Symbol:
 
         if demangled_name is None:
             try:
-                self.demangled_name = cxxfilt.demangle(name.split('@')[0])
+                self.demangled_name = str(itanium_demangler.parse(name.split('@')[0]))
             except:
                 self.demangled_name = demangled_name
         else:
